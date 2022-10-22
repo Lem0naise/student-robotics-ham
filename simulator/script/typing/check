@@ -1,0 +1,11 @@
+#!/bin/bash
+
+ROOT=$(dirname $(dirname  $(dirname $0)))
+
+export PYTHONPATH=$ROOT/stubs:$ROOT/modules
+
+if [ -z "$MYPY" ]; then
+    MYPY=mypy
+fi
+
+exec "$MYPY" $ROOT/controllers/* $ROOT/modules $ROOT/stubs "$@"

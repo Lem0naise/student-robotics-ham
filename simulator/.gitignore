@@ -1,0 +1,11 @@
+*.pyc
+.*.wbproj
+.*.cache
+
+/.idea
+/.vscode
+/.mypy_cache
+/venv
+
+/robots
+/worlds/.*.jpg
