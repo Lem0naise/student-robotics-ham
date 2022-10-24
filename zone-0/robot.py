@@ -1,6 +1,6 @@
 from sr.robot3 import *
 from operator import attrgetter
-from random import randrange
+from random import choice, randrange
 
 R = Robot()
 
@@ -104,6 +104,7 @@ def turn(angle):
 # ~~~~ TODO SMOOTHER MOVING ~~~~
 # ~~~~ BETTER AVOIDING OF OBSTACLES (maybe turn instead of reversing) ~~~~
 # ~~~~ AVOIDING WHEN GRABBING (DONT) ~~~~
+# ~~~ IF GETS STUCK IN CORNER, CANNOT SEE HOME MARKERS ~~~~
 
 # ---------- MAIN PROGRAM ---------
 
@@ -154,12 +155,13 @@ while True:
 
 
 	# -------- SPINNING --------
+
 	elif (state == "empty"):
 
 		speed(-1, [0, 1], True, 0.1)
 		c_angle = randrange(60, 100)
 		turn(c_angle)
-		state = "moving"
+		state = "looking"
 		
 
 	# -------- MOVING --------
@@ -168,10 +170,15 @@ while True:
 
 		speed(1, [0, 1]) # full speed
 
+		m_angle = marker_angle(TOKEN_MARKERS)
+		print("anggle to aimed marker", m_angle)
+		if m_angle >= 10:
+			turn(m_angle)
+
 		if dist_front() < 0.1:            
 			speed(0, [0, 1]) # stop
 
-			if marker(TOKEN_MARKERS).distance <= 150: # if about to grab a token and not something else
+			if marker(TOKEN_MARKERS).distance <= 150: # if about to grab a token and not a wall or other bot
 				state = "grabbing"
 			else:
 				state = "empty"
@@ -293,14 +300,14 @@ while True:
 
 		speed(-1, [0, 1], True, 0.2)
 		speed(1, [0], True, 0.3)
-		state =  old_state
+		state = old_state
 
 	if (state == "avoiding collision right"):
 		print(state)
 
 		speed(-1, [0, 1], True, 0.2)
 		speed(1, [1], True, 0.3)
-		state =  old_state
+		state = old_state
 
 
 
