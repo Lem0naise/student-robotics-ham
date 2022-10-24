@@ -11,7 +11,15 @@ ZONE_1_MARKERS = [0, 1, 2, 25, 26, 27]
 ZONE_2_MARKERS = [4, 5, 6, 7, 8, 9]
 ZONE_3_MARKERS = [11, 12, 13, 14, 15, 16]
 ZONE_4_MARKERS = [18, 19, 20, 21, 22, 23]
-HOME_MARKERS = ZONE_1_MARKERS # change this when our zone changes
+ZONE_TO_MARKER = {
+	0: ZONE_1_MARKERS,
+	1: ZONE_2_MARKERS,
+	2: ZONE_3_MARKERS,
+	3: ZONE_4_MARKERS,
+	}
+
+HOME_MARKERS = ZONE_TO_MARKER[R.zone] # this changes when our zone changes
+print(R.zone, HOME_MARKERS)
 OTHER_MARKERS = [x for x in range(26) if x not in HOME_MARKERS]
 TOKEN_MARKERS = [99]
 print(OTHER_MARKERS)
@@ -95,7 +103,7 @@ def turn(angle):
 
 # ~~~~ TODO SMOOTHER MOVING ~~~~
 # ~~~~ BETTER AVOIDING OF OBSTACLES (maybe turn instead of reversing) ~~~~
-
+# ~~~~ AVOIDING WHEN GRABBING (DONT) ~~~~
 
 # ---------- MAIN PROGRAM ---------
 
@@ -269,24 +277,30 @@ while True:
 
 	if left_dist <= 0.2:
 		old_state = state
-		state = "avoiding collision left"
+
+		if state not in ["grabbing", "failed grabbing"]: # don't avoid if grabbing
+			state = "avoiding collision left"
 
 	elif right_dist <= 0.2:
 		old_state = state
-		state = "avoiding collision right"
+		
+		if state not in ["grabbing", "failed grabbing"]: # don't avoid if grabbing
+			state = "avoiding collision right"
 
 
 	if (state == "avoiding collision left"):
 		print(state)
 
-		speed(-1, [0, 1], True, 0.5)
-		state = old_state
+		speed(-1, [0, 1], True, 0.2)
+		speed(1, [0], True, 0.3)
+		state =  old_state
 
 	if (state == "avoiding collision right"):
 		print(state)
 
-		speed(-1, [0, 1], True, 0.5)
-		state = old_state
+		speed(-1, [0, 1], True, 0.2)
+		speed(1, [1], True, 0.3)
+		state =  old_state
 
 
 
