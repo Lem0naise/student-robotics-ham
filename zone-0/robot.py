@@ -107,7 +107,7 @@ def turn(angle):
 # ~~~~ BETTER AVOIDING OF OBSTACLES (maybe turn instead of reversing) ~~~~
 # ~~~~ DONT AVOIDING WHEN GRABBING  ~~~~
 # ~~~~ DONT GET STUCK ON STICKY OUT THINGS WHEN LEFT & RIGHT CANNOT SEE ~~~~
-# ~~~ IF GETS STUCK IN CORNER, CANNOT SEE HOME MARKERS ~~~~
+# ~~~~ IF GETS STUCK IN CORNER, CANNOT SEE HOME MARKERS ~~~~
 
 # ---------- MAIN PROGRAM ---------
 
