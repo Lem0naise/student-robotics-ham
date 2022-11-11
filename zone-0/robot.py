@@ -36,7 +36,7 @@ def rad2deg(rad):
 
 # ---------- SPOTTING MARKER ID ----------
 
-def marker(ids): # array of ids
+def marker(ids): # array
 	global state
 
 	cubes = R.camera.see() # make list of all visible cubes
