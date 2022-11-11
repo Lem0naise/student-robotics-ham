@@ -12,28 +12,18 @@ WorldInfo {
   basicTimeStep 8
 }
 Viewpoint {
-  # rotation 0.0 0.0 1.0 0.0
-  # the combined rotation of 0, -1, 0, 1.5708 & -1, 0, 0, 1
-  orientation 0.43231 0.43231 -0.79134 1.80272
-  position 0 7.95 12.0
+  orientation 0.2977733736011444 0.3003906961607035 -0.9061437234977027 1.6604850919048244
+  position 0.5851439338032435 11.808542210550653 8.0418778144878
+  near 0.1
   ambientOcclusionRadius 0.3
   bloomThreshold 100
-  # top view:
-  #orientation -0.57735 -0.57735 -0.57735 2.09440
-  #position 0 20.5 0
-  near 0.1
 }
 DEF SUN DirectionalLight {
-  color 1 1 1
-  direction 0 0 -1
-  intensity 1
   castShadows TRUE
 }
 DEF SUN2 DirectionalLight {
-  color 1 1 1
   direction 0.2 0.1 -1
   intensity 0.5
-  castShadows FALSE
 }
 DEF AMBIENT Background {
   skyColor [
@@ -42,68 +32,118 @@ DEF AMBIENT Background {
   luminosity 1.5
 }
 DEF ROBOT-0 Robot_2022 {
-  translation 0.5 -2.375 0.001
-  rotation 0 0 -1 1.57079633
+  hidden position_0_0 7.415380728286796e-12
+  hidden position_0_1 7.404850401999877e-12
+  hidden position_0_2 -0.08652205728533383
+  hidden position2_0_2 4.779746343355306e-08
+  hidden position3_0_2 7.585251577552926e-09
+  hidden position_0_3 -0.0865221591025102
+  hidden position2_0_3 4.779756150605427e-08
+  hidden position3_0_3 7.585254451039226e-09
+  hidden position_0_4 -3.7105816921211555e-12
+  hidden position_0_5 -3.6325444150609127e-12
+  hidden rotation_6 -0.9999999999998436 5.558789179539416e-07 6.371498494860693e-08 0.08652205728535077
+  hidden rotation_7 -0.9999999999998436 5.558794016861962e-07 6.371486587217737e-08 0.08652215910252697
+  translation 0.5000000002757023 -2.37332302021679 0.00012092706578738233
+  rotation 0.016252881983258024 0.016252864301929522 -0.9997358092162256 1.571060562476744
   controller "sr_controller"
   model "Robot0"
   flagColour 0 1 0
-  controllerArgs "0"
+  controllerArgs [
+    "0"
+  ]
 }
 DEF ROBOT-1 Robot_2022 {
-  translation -2.375 -0.5 0.001
-  rotation 0 0 -1 3.1415927
-  model "Robot1"
+  hidden position_0_0 7.415026690455244e-12
+  hidden position_0_1 7.404204813389795e-12
+  hidden position_0_2 5.280878905393045e-08
+  hidden position2_0_2 0.08652205728537818
+  hidden position3_0_2 -3.6338560952590243e-09
+  hidden position_0_3 5.2808752660038685e-08
+  hidden position2_0_3 0.08652215910241351
+  hidden position3_0_3 -3.6338633127117207e-09
+  hidden position_0_4 -3.710493046969401e-12
+  hidden position_0_5 -3.6327440825333322e-12
+  hidden rotation_6 6.081528579647938e-07 0.9999999999998149 -1.5568588844452792e-08 0.08652205728539183
+  hidden rotation_7 6.081517152946243e-07 0.9999999999998149 -1.5568640952343577e-08 0.08652215910242943
+  translation -2.373323020216791 -0.5000000003481562 0.00012092706578736845
+  rotation -0.016255020295247842 9.192982116168905e-09 0.9998678784295458 3.1415926003951045
   controller "sr_controller"
+  model "Robot1"
   flagColour 1 0.375 0
-  controllerArgs "1"
+  controllerArgs [
+    "1"
+  ]
 }
 DEF ROBOT-2 Robot_2022 {
-  translation -0.5 2.375 0.001
-  rotation 0 0 1 1.57079633
-  model "Robot2"
+  hidden position_0_0 7.415320705766918e-12
+  hidden position_0_1 7.405077557496877e-12
+  hidden position_0_2 0.08652205728529634
+  hidden position2_0_2 -4.7247523191006245e-08
+  hidden position3_0_2 7.524120370319802e-09
+  hidden position_0_3 0.0865221591023442
+  hidden position2_0_3 -4.7247496989260194e-08
+  hidden position3_0_3 7.52412702850468e-09
+  hidden position_0_4 -3.7105783721271456e-12
+  hidden position_0_5 -3.632769779661047e-12
+  hidden rotation_6 0.9999999999998471 -5.494962481255737e-07 6.32838568983315e-08 0.08652205728530969
+  hidden rotation_7 0.999999999999847 -5.49495305802928e-07 6.32838445063549e-08 0.08652215910235754
+  translation -0.5000000002649521 2.37332302021679 0.00012092706578742396
+  rotation -0.01625286446434484 0.01625288204148918 0.9997358092126384 1.5710605488973126
   controller "sr_controller"
+  model "Robot2"
   flagColour 1 0 1
-  controllerArgs "2"
+  controllerArgs [
+    "2"
+  ]
 }
 DEF ROBOT-3 Robot_2022 {
-  translation 2.375 0.5 0.001
-  rotation 0 0 1 0
-  model "Robot3"
+  hidden position_0_0 7.415643627791567e-12
+  hidden position_0_1 7.404842280954482e-12
+  hidden position_0_2 -4.872576839801712e-08
+  hidden position2_0_2 -0.0865220572852551
+  hidden position3_0_2 -3.1800359990089504e-09
+  hidden position_0_3 -4.8725728777829795e-08
+  hidden position2_0_3 -0.08652215910245112
+  hidden position3_0_3 -3.1800423460038814e-09
+  hidden position_0_4 -3.710691054425238e-12
+  hidden position_0_5 -3.632435052752872e-12
+  hidden rotation_6 -5.612186934958495e-07 -0.9999999999998425 -1.2368234097405795e-08 0.08652205728526861
+  hidden rotation_7 -5.612175695617001e-07 -0.9999999999998425 -1.236828394032873e-08 0.08652215910246537
+  translation 2.3733230202167905 0.5000000002703272 0.00012092706578742396
+  rotation 5.423421502934531e-07 0.9999999999998309 -2.088773693361823e-07 0.032511472425378274
   controller "sr_controller"
+  model "Robot3"
   flagColour 1 1 0
-  controllerArgs "3"
+  controllerArgs [
+    "3"
+  ]
 }
-
 Robot {
   translation 0 0 -1
-  name "comp-supervisor"
-  model "CompetitionSupervisor"
-  description "A supervisor 'robot' to help run the competition."
-  controller "competition_supervisor"
-  supervisor TRUE
   children [
-    # this is a hack to detect if we are running on version 2020b
     Connector {
       name "2021a-compatibility"
       type "passive"
     }
   ]
+  name "comp-supervisor"
+  model "CompetitionSupervisor"
+  description "A supervisor 'robot' to help run the competition."
+  controller "competition_supervisor"
+  supervisor TRUE
 }
-
 DEF LIGHT_CTRL Robot {
-  translation 0 0 0
   name "lighting_controller"
   description "A supervisor 'robot' to handle modifying the arena lighting throughout the match"
   controller "lighting_controller"
   supervisor TRUE
 }
-
-Solid {  # Floor
+Solid {
   translation 0 0 -0.002
   children [
     DEF FLOOR Shape {
       appearance PBRAppearance {
-        baseColor 1 1 1
         roughness 1
         metalness 0
       }
@@ -115,7 +155,7 @@ Solid {  # Floor
   name "Floor"
   boundingObject USE FLOOR
 }
-Solid {  # Wall markers
+Solid {
   children [
     WallMarker {
       translation 2.154 -2.8749 0.175
@@ -271,7 +311,7 @@ Solid {  # Wall markers
       ]
     }
     WallMarker {
-      translation -0 2.8749 0.175
+      translation 0 2.8749 0.175
       rotation 0 0 1 3.1416
       name "A17"
       model "F17"
@@ -372,7 +412,7 @@ Solid {  # Wall markers
   ]
   name "Wall markers"
 }
-Solid {  # North Wall
+Solid {
   translation 0 -2.95 0.15
   children [
     DEF SHAPE Shape {
@@ -386,10 +426,10 @@ Solid {  # North Wall
       }
     }
   ]
-  boundingObject USE SHAPE
   name "North Wall"
+  boundingObject USE SHAPE
 }
-Solid {  # South Wall
+Solid {
   translation 0 2.95 0.15
   children [
     DEF SHAPE Shape {
@@ -403,10 +443,10 @@ Solid {  # South Wall
       }
     }
   ]
-  boundingObject USE SHAPE
   name "South Wall"
+  boundingObject USE SHAPE
 }
-Solid {  # East Wall
+Solid {
   translation -2.95 0 0.15
   children [
     DEF SHAPE Shape {
@@ -420,10 +460,10 @@ Solid {  # East Wall
       }
     }
   ]
-  boundingObject USE SHAPE
   name "East Wall"
+  boundingObject USE SHAPE
 }
-Solid {  # West Wall
+Solid {
   translation 2.95 0 0.15
   children [
     DEF SHAPE Shape {
@@ -437,8 +477,8 @@ Solid {  # West Wall
       }
     }
   ]
-  boundingObject USE SHAPE
   name "West Wall"
+  boundingObject USE SHAPE
 }
 Starting_Zone {
   translation 0.5 -2.375 0.001
@@ -476,7 +516,7 @@ Scoring_Zone {
   name "Zone 3 Scoring"
   cornerColor 1 1 0.8
 }
-Solid { # Plinth Centre
+Solid {
   translation 0 0 0.0375
   children [
     DEF SHAPE Shape {
@@ -486,15 +526,15 @@ Solid { # Plinth Centre
         metalness 0
       }
       geometry Box {
-        size 0.60 0.60 0.075
+        size 0.6 0.6 0.075
       }
     }
   ]
+  name "Plinth Centre"
   boundingObject USE SHAPE
   locked TRUE
-  name "Plinth Centre"
 }
-Solid { # Plinth North Arm
+Solid {
   translation 0 -0.6375 0.0375
   children [
     DEF SHAPE Shape {
@@ -508,11 +548,11 @@ Solid { # Plinth North Arm
       }
     }
   ]
+  name "Plinth North Arm"
   boundingObject USE SHAPE
   locked TRUE
-  name "Plinth North Arm"
 }
-Solid { # Plinth South Arm
+Solid {
   translation 0 0.6375 0.0375
   children [
     DEF SHAPE Shape {
@@ -526,11 +566,11 @@ Solid { # Plinth South Arm
       }
     }
   ]
+  name "Plinth South Arm"
   boundingObject USE SHAPE
   locked TRUE
-  name "Plinth South Arm"
 }
-Solid { # Plinth West Arm
+Solid {
   translation 0.6375 0 0.0375
   children [
     DEF SHAPE Shape {
@@ -544,11 +584,11 @@ Solid { # Plinth West Arm
       }
     }
   ]
+  name "Plinth West Arm"
   boundingObject USE SHAPE
   locked TRUE
-  name "Plinth West Arm"
 }
-Solid { # Plinth East Arm
+Solid {
   translation -0.625 0 0.0375
   children [
     DEF SHAPE Shape {
@@ -562,155 +602,187 @@ Solid { # Plinth East Arm
       }
     }
   ]
+  name "Plinth East Arm"
   boundingObject USE SHAPE
   locked TRUE
-  name "Plinth East Arm"
 }
-# ---  Corner 0  ---
 SRToken_Bronze {
-  translation 2.525 1.100 0.061
+  translation 2.524999822720171 1.1000001772803516 0.05812979139947791
+  rotation -0.7071078226905132 -0.7071057396810477 1.044122390793964e-11 4.168111529358516e-06
   model "B0"
 }
 SRToken_Bronze {
-  translation 1.000 1.000 0.061
+  translation 0.999999822720171 1.0000001772803515 0.05812979139947791
+  rotation -0.7071078226887516 -0.7071057396828093 1.0932277607544816e-11 4.168111529360091e-06
   model "B1"
 }
 SRToken_Bronze {
-  translation 1.550 1.550 0.061
+  translation 1.549999822720171 1.5500001772803516 0.05812979139947791
+  rotation -0.7071078226898732 -0.7071057396816878 -2.1096104565282933e-14 4.168111529349154e-06
   model "B2"
 }
 SRToken_Bronze {
-  translation 0.800 2.225 0.061
+  translation 0.7999998227201711 2.225000177280349 0.05812979139947791
+  rotation -0.7071078226905064 -0.7071057396810546 1.097601051382171e-11 4.168111529356043e-06
   model "B3"
 }
 SRToken_Bronze {
-  translation 1.100 2.525 0.061
+  translation 1.099999822720171 2.525000177280349 0.05812979139947791
+  rotation -0.7071078226886536 -0.7071057396829077 -1.4104543337825465e-12 4.1681115293594805e-06
   model "B4"
 }
 SRToken_Silver {
-  translation 2.525 2.525 0.061
+  translation 2.524999822594596 2.525000177405927 0.05810036139947721
+  rotation -0.7071078226889177 -0.7071057396826433 4.809505901703897e-13 4.171063983924369e-06
   model "B5"
 }
 SRToken_Silver {
-  translation 2.325 1.815 0.061
+  translation 2.3249998225945965 1.8150001774059263 0.05810036139947721
+  rotation -0.7071078226897417 -0.7071057396818192 -1.0480775683322188e-12 4.1710639839266524e-06
   model "B6"
 }
 SRToken_Silver {
-  translation 1.815 2.325 0.061
+  translation 1.8149998225945951 2.3250001774059275 0.05810036139947721
+  rotation -0.7071078226891757 -0.7071057396823853 -9.988746638381072e-13 4.171063983912486e-06
   model "B7"
 }
 SRToken_Gold {
-  translation 0.160 0.435 0.136
+  translation 0.15999981949273331 0.4350003984752528 0.13310036162764982
+  rotation -0.8926180619277199 -0.45081341788246193 0.0005077179670098052 3.3038659008729037e-06
   model "B8"
 }
-# ---  Corner 1  ---
 SRToken_Bronze {
-  translation -1.100 2.525 0.061
+  translation -1.1000001772798291 2.525000177280349 0.05812979139947791
+  rotation -0.7071078226902444 -0.7071057396813167 -4.994596790500558e-12 4.168111529360737e-06
   model "B9"
 }
 SRToken_Bronze {
-  translation -1.000 1.000 0.061
+  translation -1.000000177279829 1.0000001772803515 0.05812979139947791
+  rotation -0.7071078226891769 -0.7071057396823842 -2.0129409472455983e-12 4.168111529355725e-06
   model "B10"
 }
 SRToken_Bronze {
-  translation -1.550 1.550 0.061
+  translation -1.550000177279829 1.5500001772803516 0.05812979139947791
+  rotation -0.7071078226911471 -0.7071057396804139 -5.407970320319572e-12 4.168111529359158e-06
   model "B11"
 }
 SRToken_Bronze {
-  translation -2.225 0.800 0.061
+  translation -2.225000177279829 0.8000001772803514 0.05812979139947791
+  rotation -0.7071078226910376 -0.7071057396805234 4.031723203823956e-12 4.168111529365428e-06
   model "B12"
 }
 SRToken_Bronze {
-  translation -2.525 1.100 0.061
+  translation -2.525000177279829 1.1000001772803516 0.05812979139947791
+  rotation -0.7071078226910456 -0.7071057396805155 1.25396562757231e-11 4.168111529361024e-06
   model "B13"
 }
 SRToken_Silver {
-  translation -2.525 2.525 0.061
+  translation -2.5250001774054036 2.525000177405927 0.05810036139947721
+  rotation -0.7071078226904395 -0.7071057396811213 2.5114067411971167e-12 4.17106398391534e-06
   model "B14"
 }
 SRToken_Silver {
-  translation -1.815 2.325 0.061
+  translation -1.8150001774054048 2.3250001774059275 0.05810036139947721
+  rotation -0.707107822689741 -0.7071057396818201 -2.6759828614837796e-12 4.171063983899407e-06
   model "B15"
 }
 SRToken_Silver {
-  translation -2.325 1.815 0.061
+  translation -2.325000177405404 1.8150001774059263 0.05810036139947721
+  rotation -0.7071078226904405 -0.7071057396811204 -7.152175184979768e-12 4.171063983923601e-06
   model "B16"
 }
 SRToken_Gold {
-  translation -0.435 0.160 0.136
+  translation -0.4350003991996472 0.16000039920082343 0.13310036139882128
+  rotation -0.7071078226898547 -0.7071057396817063 9.63831405746713e-11 4.177292070058607e-06
   model "B17"
 }
-# ---  Corner 2  ---
 SRToken_Bronze {
-  translation -2.525 -1.100 0.061
+  translation -2.525000177279829 -1.0999998227196486 0.05812979139947791
+  rotation -0.7071078226914628 -0.7071057396800983 6.6220732622666395e-12 4.1681115293516285e-06
   model "B18"
 }
 SRToken_Bronze {
-  translation -1.000 -1.000 0.061
+  translation -1.000000177279829 -0.9999998227196486 0.05812979139947791
+  rotation -0.7071078226904538 -0.7071057396811071 -4.191833632715086e-12 4.168111529358849e-06
   model "B19"
 }
 SRToken_Bronze {
-  translation -1.550 -1.550 0.061
+  translation -1.550000177279829 -1.5499998227196485 0.05812979139947791
+  rotation -0.7071078226914674 -0.7071057396800935 -2.7928122503335256e-12 4.168111529362942e-06
   model "B20"
 }
 SRToken_Bronze {
-  translation -0.800 -2.225 0.061
+  translation -0.8000001772798291 -2.224999822719651 0.05812979139947791
+  rotation -0.7071078226900283 -0.7071057396815327 -3.1026084210971564e-12 4.168111529370137e-06
   model "B21"
 }
 SRToken_Bronze {
-  translation -1.100 -2.525 0.061
+  translation -1.1000001772798291 -2.524999822719651 0.05812979139947791
+  rotation -0.7071078226902457 -0.7071057396813152 -2.2472311031222685e-12 4.16811152936197e-06
   model "B22"
 }
 SRToken_Silver {
-  translation -2.525 -2.525 0.061
+  translation -2.5250001774054036 -2.5249998225940726 0.05810036139947721
+  rotation -0.7071078226930567 -0.7071057396785042 3.172991519521905e-13 4.171063983923584e-06
   model "B23"
 }
 SRToken_Silver {
-  translation -2.325 -1.815 0.061
+  translation -2.325000177405404 -1.8149998225940736 0.05810036139947721
+  rotation -0.7071078226903958 -0.7071057396811653 4.4376466503768746e-13 4.171063983927951e-06
   model "B24"
 }
 SRToken_Silver {
-  translation -1.815 -2.325 0.061
+  translation -1.8150001774054048 -2.324999822594073 0.05810036139947721
+  rotation -0.7071078226915324 -0.7071057396800285 -1.6541231267896195e-11 4.17106398390893e-06
   model "B25"
 }
 SRToken_Gold {
-  translation -0.160 -0.435 0.136
+  translation -0.1600003984810346 -0.4349998194920346 0.1331003616276548
+  rotation -0.45080261877501593 -0.8926235271013588 -0.0004876173882496432 3.3038937359939636e-06
   model "B26"
 }
-# ---  Corner 3  ---
 SRToken_Bronze {
-  translation 1.100 -2.525 0.061
+  translation 1.099999822720171 -2.524999822719651 0.05812979139947791
+  rotation -0.7071078226906706 -0.7071057396808903 -7.422694470292501e-12 4.168111529362598e-06
   model "B27"
 }
 SRToken_Bronze {
-  translation 1.000 -1.000 0.061
+  translation 0.999999822720171 -0.9999998227196486 0.05812979139947791
+  rotation -0.7071078226901337 -0.7071057396814273 8.530457539518052e-12 4.168111529358837e-06
   model "B28"
 }
 SRToken_Bronze {
-  translation 1.550 -1.550 0.061
+  translation 1.549999822720171 -1.5499998227196485 0.05812979139947791
+  rotation -0.7071078226897656 -0.7071057396817955 -3.8648983358970565e-12 4.168111529361057e-06
   model "B29"
 }
 SRToken_Bronze {
-  translation 2.225 -0.800 0.061
+  translation 2.224999822720171 -0.7999998227196486 0.05812979139947791
+  rotation -0.7071078226897107 -0.7071057396818502 2.9463137175140344e-12 4.168111529357573e-06
   model "B30"
 }
 SRToken_Bronze {
-  translation 2.525 -1.100 0.061
+  translation 2.524999822720171 -1.0999998227196486 0.05812979139947791
+  rotation -0.7071078226904526 -0.7071057396811082 8.02545906935536e-12 4.168111529361339e-06
   model "B31"
 }
 SRToken_Silver {
-  translation 2.525 -2.525 0.061
+  translation 2.524999822594596 -2.5249998225940726 0.05810036139947721
+  rotation -0.7071078226904847 -0.7071057396810762 -7.572326463731833e-12 4.1710639839320785e-06
   model "B32"
 }
 SRToken_Silver {
-  translation 1.815 -2.325 0.061
+  translation 1.8149998225945951 -2.324999822594073 0.05810036139947721
+  rotation -0.7071078226904387 -0.7071057396811224 -9.717970714428262e-12 4.17106398391843e-06
   model "B33"
 }
 SRToken_Silver {
-  translation 2.325 -1.815 0.061
+  translation 2.3249998225945965 -1.8149998225940736 0.05810036139947721
+  rotation -0.7071078226905735 -0.7071057396809876 1.5261551789072473e-12 4.171063983922278e-06
   model "B34"
 }
 SRToken_Gold {
-  translation 0.435 -0.160 0.136
+  translation 0.434999819065133 -0.15999981906462918 0.1331003614892604
+  rotation -0.7071077699750931 -0.7071057923966194 9.150728971283271e-10 2.1104118917024188e-06
   model "B35"
 }

@@ -1,13 +1,13 @@
 from sr.robot3 import *
 from operator import attrgetter
-from random import choice, randrange
+from random import randrange
 
 R = Robot()
 
 
 # ---------- MARKER SETUP ----------
 
-ZONE_1_MARKERS = [0, 1, 2, 25, 26, 27]
+ZONE_1_MARKERS = [25, 26, 27, 0, 1, 2]
 ZONE_2_MARKERS = [4, 5, 6, 7, 8, 9]
 ZONE_3_MARKERS = [11, 12, 13, 14, 15, 16]
 ZONE_4_MARKERS = [18, 19, 20, 21, 22, 23]
@@ -19,6 +19,7 @@ ZONE_TO_MARKER = {
 	}
 
 HOME_MARKERS = ZONE_TO_MARKER[R.zone] # this changes when our zone changes
+
 print(R.zone, HOME_MARKERS)
 OTHER_MARKERS = [x for x in range(26) if x not in HOME_MARKERS]
 TOKEN_MARKERS = [99]
@@ -72,7 +73,7 @@ def dist_front():
 
 # ---------- SPEED FUNCTION ---------
 
-def speed(speed, motors, stop = False, time = None): # float (-1, 1) ; [array]
+def speed(speed, motors, stop = False, time = None): # float(-1, 1) ; [array]
 	for motor in motors:
 		R.motor_board.motors[motor].power = speed
  
@@ -101,9 +102,11 @@ def turn(angle):
 	speed(0, [0, 1]) # stop both
 
 
+
 # ~~~~ TODO SMOOTHER MOVING ~~~~
 # ~~~~ BETTER AVOIDING OF OBSTACLES (maybe turn instead of reversing) ~~~~
-# ~~~~ AVOIDING WHEN GRABBING (DONT) ~~~~
+# ~~~~ DONT AVOIDING WHEN GRABBING  ~~~~
+# ~~~~ DONT GET STUCK ON STICKY OUT THINGS WHEN LEFT & RIGHT CANNOT SEE ~~~~
 # ~~~ IF GETS STUCK IN CORNER, CANNOT SEE HOME MARKERS ~~~~
 
 # ---------- MAIN PROGRAM ---------
@@ -111,6 +114,7 @@ def turn(angle):
 turn(-80) # very initial turn
 
 while True:
+	
 	print(state)
 
 	# -------- SETUP --------
@@ -128,7 +132,7 @@ while True:
 		cubes = R.camera.see() # make list of all visible cubes
 
 		if len(cubes) > 0: # if can see any cubes
-			closest = marker(TOKEN_MARKERS) # any tokens 
+			closest = marker(TOKEN_MARKERS) # closest token marker object
 			if closest != None:
 				c_dist = closest.distance / 1000
 
@@ -171,23 +175,27 @@ while True:
 		speed(1, [0, 1]) # full speed
 
 		m_angle = marker_angle(TOKEN_MARKERS)
-		print("anggle to aimed marker", m_angle)
-		if m_angle >= 10:
-			turn(m_angle)
+		if m_angle == None: # if for some reason have lost sight of angle
+			state = "looking"
+			
+		else:
+			print("angle to aimed marker", m_angle)
+			if m_angle >= 10:
+				turn(m_angle)
 
-		if dist_front() < 0.1:            
-			speed(0, [0, 1]) # stop
+			if dist_front() < 0.1:            
+				speed(0, [0, 1]) # stop
 
-			if marker(TOKEN_MARKERS).distance <= 150: # if about to grab a token and not a wall or other bot
-				state = "grabbing"
-			else:
-				state = "empty"
+				if marker(TOKEN_MARKERS).distance <= 150: # if about to grab a token and not a wall or other bot
+					state = "grabbing"
+				else:
+					state = "empty"
 
 
 	# -------- GRABBING --------
 
 	elif (state == "grabbing"):
-
+		
 		R.servo_board.servos[0].position = 1
 		R.servo_board.servos[1].position = 1
 
@@ -215,7 +223,7 @@ while True:
 	elif (state == "returning"):
 
 		turn(180)
-		h_angle = marker_angle(HOME_MARKERS)
+		h_angle = marker_angle([HOME_MARKERS[-1]]) 
 		if h_angle != None: turn(h_angle) # turn the angle of the closest home marker
 		speed(1, [0, 1])
 		state = "returning moving"
@@ -228,8 +236,8 @@ while True:
 		h_marker = marker(HOME_MARKERS)
 		if h_marker != None: # if seen a home marker
 
-			if h_marker.distance <= 1000:
-				state = "dropping"
+			if h_marker.distance <= 2500: # if the closest home marker is less than 2.5m away
+				state = "dropping" # set state to dropping
 				speed(0, [0, 1])
 
 		else: # if cannot see a home marker
@@ -245,7 +253,7 @@ while True:
 		while marker(HOME_MARKERS) == None:
 			turn(30)
 		
-		state = "returning moving"
+		state = "returning" # set state back to returning to home
 
 
 
@@ -308,8 +316,6 @@ while True:
 		speed(-1, [0, 1], True, 0.2)
 		speed(1, [1], True, 0.3)
 		state = old_state
-
-
 
 	R.sleep(0.2)
 
