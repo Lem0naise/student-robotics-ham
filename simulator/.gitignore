@@ -1,7 +1,7 @@
 *.pyc
 .*.wbproj
 .*.cache
-*.txt
+
 /.idea
 /.vscode
 /.mypy_cache
