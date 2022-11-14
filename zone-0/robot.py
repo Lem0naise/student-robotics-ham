@@ -128,7 +128,7 @@ while True:
 
 	elif (state == "looking"):
 
-		R.sleep(0.2) # pause before looking
+		R.sleep(0.05) # pause before looking
 		
 		cubes = R.camera.see() # make list of all visible cubes
 
@@ -140,7 +140,7 @@ while True:
 				# -- GETTING ROTATION INFORMATION -- 
 				c_angle = rad2deg(closest.spherical.rot_y)
 				turn(c_angle)
-				R.sleep(0.5)
+				R.sleep(0.1)
 			
 				state = "moving"
 			else:
@@ -180,7 +180,6 @@ while True:
 			state = "looking"
 			
 		else:
-			print("angle to aimed marker", m_angle)
 			if m_angle >= 10:
 				turn(m_angle)
 
@@ -201,7 +200,7 @@ while True:
 		R.servo_board.servos[1].position = 1
 
 		if (dist_front() < 0.3): # if grabbed successfully
-			state = "returning"
+			state = "finding home"
 		else:
 			state = "failed grabbing"
 	
@@ -219,18 +218,22 @@ while True:
 
 
 
-	# -------- RETURNING WITH A TOKEN -------- 
+	# -------- FINDING HOME TO RETURN TO  -------- 
 
-	elif (state == "returning"):
+	elif (state == "finding home"):
 
-		turn(180)
-		h_angle = marker_angle([HOME_MARKERS[-1]]) 
-		if h_angle != None: turn(h_angle) # turn the angle of the closest home marker
-		speed(1, [0, 1])
-		state = "returning moving"
+		h_angle = marker_angle(HOME_MARKERS)
+		while h_angle == None:
+			h_angle = marker_angle(HOME_MARKERS)
+			turn(15)
+
+		turn(h_angle) # turn the angle of the closest home marker
+
+		state = "returning"
 		
 
-	elif (state == "returning moving"):
+	# -------- RETURNING BACK TO HOME WITH A TOKEN ---------
+	elif (state == "returning"):
 
 		speed(1, [0, 1])
 
@@ -243,18 +246,7 @@ while True:
 
 		else: # if cannot see a home marker
 
-			state = "searching for home"
-
-
-
-	# -------- SEARCHING FOR HOME ZONE ---------
-	
-	elif (state == "searching for home"):
-		
-		while marker(HOME_MARKERS) == None:
-			turn(30)
-		
-		state = "returning" # set state back to returning to home
+			state = "finding home"
 
 
 
