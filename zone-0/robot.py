@@ -151,14 +151,6 @@ while True:
 			state = "empty"
 
 
-
-	# -------- SEARCHING FOR TOKEN MARKERS ---------
-	
-	elif (state == "searching for tokens"):
-		
-		pass
-
-
 	# -------- SPINNING --------
 
 	elif (state == "empty"):
