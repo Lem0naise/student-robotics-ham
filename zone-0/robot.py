@@ -18,14 +18,15 @@ ZONE_TO_MARKER = {
 	3: ZONE_4_MARKERS,
 	}
 
-HOME_MARKERS = ZONE_TO_MARKER[R.zone] # this changes when our zone changes
+HOME_MARKERS = ZONE_TO_MARKER[R.zone] # R.zone automatically changes when our zone changes
 
 print(R.zone, HOME_MARKERS)
-OTHER_MARKERS = [x for x in range(26) if x not in HOME_MARKERS]
+
+# set OTHER_MARKERS to all wall markers other than [home markers and centre markers]
+OTHER_MARKERS = [x for x in range(26) if (x not in HOME_MARKERS) and (x not in [3, 10, 17, 24])]
+
+# all token markers have id of 99
 TOKEN_MARKERS = [99]
-print(OTHER_MARKERS)
-old_state = "stationary"
-state = "stationary"
 
 
 # ---------- DEGREE FUNCTION ----------
@@ -37,12 +38,9 @@ def rad2deg(rad):
 # ---------- SPOTTING MARKER ID ----------
 
 def marker(ids): # array
-	global state
 
 	cubes = R.camera.see() # make list of all visible cubes
 	
-	i = 0  # iterator to prevent a 360 degree turn without seeing marker
-
 	if not any(mark.id in ids for mark in cubes): # if no zone markers are found
 		return None
 	
@@ -60,6 +58,7 @@ def marker(ids): # array
 
 # ---------- SPOTTING MARKER ID ANGLE ----------
 def marker_angle(ids):
+	
 	mark = marker(ids)
 	if mark != None:
 		return rad2deg(mark.spherical.rot_y)
@@ -68,12 +67,14 @@ def marker_angle(ids):
 
 # ---------- REFRESHING DISTANCE FUNCTION ----------
 def dist_front():
+
 	return R.ruggeduino.pins[A4].analogue_read()
 
 
 # ---------- SPEED FUNCTION ---------
 
-def speed(speed, motors, stop = False, time = None): # float(-1, 1) ; [array]
+def speed(speed, motors, stop = False, time = None): # speed: float(-1, 1) ; motors: [array]
+
 	for motor in motors:
 		R.motor_board.motors[motor].power = speed
  
@@ -111,16 +112,25 @@ def turn(angle):
 
 
 # ---------- MAIN PROGRAM ---------
+state = "stationary"
 
 turn(-80) # very initial turn
 
 while True:
 	
-	print(state)
+	print(state) # logging state to console
 
 	# -------- SETUP --------
-	
+	# -------- SETTING VIEW TO FIND MARKERS NOT IN HOME ZONE ---------
 	if (state == "stationary"):		
+
+		o_angle = None
+
+		while o_angle == None: # while cannot yet see another marker
+			turn(30)
+			o_angle = marker_angle(OTHER_MARKERS)
+			R.sleep(0.1)
+
 		state = "looking"
 
 
@@ -151,31 +161,32 @@ while True:
 			state = "empty"
 
 
-	# -------- SPINNING --------
+	# -------- SPINNING IF CANNOT SEE ANY MARKERS --------
 
 	elif (state == "empty"):
 
-		speed(-1, [0, 1], True, 0.1)
-		c_angle = randrange(60, 100)
+		speed(-1, [0, 1], True, 0.1) # reverse for 0.1 seconds
+		c_angle = randrange(60, 100) # turn random degrees to right
 		turn(c_angle)
-		state = "looking"
+		state = "looking" # set back to looking for markers
 		
 
-	# -------- MOVING --------
+	# -------- MOVING TO MARKER --------
 
 	elif (state == "moving"):
 
 		speed(1, [0, 1]) # full speed
 
-		m_angle = marker_angle(TOKEN_MARKERS)
-		if m_angle == None: # if for some reason have lost sight of angle
-			state = "looking"
+		m_angle = marker_angle(TOKEN_MARKERS) # check angle to the closest marker
+		
+		if m_angle == None: # if for some reason have completely lost sight of marker
+			state = "looking" # reset to looking
 			
 		else:
-			if m_angle >= 10:
+			if m_angle >= 10: # if the angle of deviation is enough to care about
 				turn(m_angle)
 
-			if dist_front() < 0.1:            
+			if dist_front() < 0.1: # if about to hit it     
 				speed(0, [0, 1]) # stop
 
 				if marker(TOKEN_MARKERS).distance <= 150: # if about to grab a token and not a wall or other bot
@@ -202,11 +213,13 @@ while True:
 
 	elif (state == "failed grabbing"):
 
+		# release
 		R.servo_board.servos[0].position = -1
 		R.servo_board.servos[1].position = -1
-		R.sleep(0.2)
-		speed(1, [0, 1], True, 0.2)
-		state = "grabbing"
+
+		R.sleep(0.2) # sleep for 0.2 seconds
+		speed(1, [0, 1], True, 0.2) # ram into box again
+		state = "grabbing" # try to grab again
 
 
 
@@ -214,7 +227,7 @@ while True:
 
 	elif (state == "finding home"):
 
-		h_angle = marker_angle(HOME_MARKERS)
+		h_angle = marker_angle(HOME_MARKERS) # find home marker
 		while h_angle == None:
 			h_angle = marker_angle(HOME_MARKERS)
 			turn(15)
@@ -246,28 +259,14 @@ while True:
 
 	elif (state == "dropping"):
 
+		# release 
 		R.servo_board.servos[0].position = -1
 		R.servo_board.servos[1].position = -1
+
 		R.sleep(0.2)
-		speed(-1, [0, 1], True, 0.2)
-		state = "resetting"
+		speed(-1, [0, 1], True, 0.2) # reverse
+		state = "stationary" # reset to looking for markers
 
-
-
-	# -------- RESETTING VIEW TO FIND MARKERS NOT IN HOME ZONE ---------
-
-	elif (state == "resetting"):
-
-		o_angle = None
-
-		while o_angle == None: # while cannot yet see another marker
-			turn(30)
-
-			o_angle = marker_angle(OTHER_MARKERS)
-
-			R.sleep(0.1)
-
-		state = "stationary"
 
 
 	# -------- AVOIDING COLLISIONS ---------
