@@ -14,7 +14,7 @@ ZONE_4_MARKERS = [18, 19, 20, 21, 22, 23]
 ZONE_TO_MARKER = {
 	0: ZONE_1_MARKERS,
 	1: ZONE_2_MARKERS,
-	2: ZONE_3_MARKERS,
+	2: ZONE_3_MARKERS
 	3: ZONE_4_MARKERS,
 	}
 
@@ -114,7 +114,7 @@ def turn(angle):
 # ---------- MAIN PROGRAM ---------
 state = "stationary"
 
-turn(-80) # very initial turn
+turn(-120) # very initial turn
 
 while True:
 	
@@ -228,14 +228,26 @@ while True:
 	elif (state == "finding home"):
 
 		h_angle = marker_angle(HOME_MARKERS) # find home marker
-		while h_angle == None:
-			h_angle = marker_angle(HOME_MARKERS)
+		total_turned = 0
+
+		# continue spinning while you cannot see any home markers 
+		# if have turned a full circle, stop the loop
+		while (h_angle == None) and (total_turned < 360):
+
+			h_angle = marker_angle(HOME_MARKERS) # see if a home marker appears
+
 			turn(15)
+			total_turned += 15
 
-		turn(h_angle) # turn the angle of the closest home marker
 
-		state = "returning"
-		
+		if h_angle != None: # if we found a home marker
+			turn(h_angle) # turn the angle of the closest home marker
+
+			state = "returning"
+
+		elif total_turned >= 360: # if instead we turned a full circle
+			pass	
+
 
 	# -------- RETURNING BACK TO HOME WITH A TOKEN ---------
 	elif (state == "returning"):
