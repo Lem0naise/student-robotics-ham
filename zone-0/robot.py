@@ -1,6 +1,7 @@
 from sr.robot3 import *
 from operator import attrgetter
 from random import randrange
+import numpy as np
 
 R = Robot()
 
@@ -29,10 +30,24 @@ OTHER_MARKERS = [x for x in range(26) if (x not in HOME_MARKERS) and (x not in [
 TOKEN_MARKERS = [99]
 
 
-# ---------- DEGREE FUNCTION ----------
+# ---------- DEGREE AND RADIAN FUNCTIONS ----------
+
+def d2r(degrees):
+    """
+    convert from degrees to radians
+    return: radians
+    """
+    return degrees * (np.pi / 180)
 
 def rad2deg(rad):
-	return rad * 57.2958
+    """
+    convert from radians to degrees
+    return: degrees
+    """
+    return rad * (180 / np.pi)
+
+#def rad2deg(rad):
+	#return rad * 57.2958
 
 
 # ---------- SPOTTING MARKER ID ----------
