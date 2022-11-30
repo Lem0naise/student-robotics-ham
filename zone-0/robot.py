@@ -198,8 +198,9 @@ while True:
 			state = "looking" # reset to looking
 			
 		else:
-			if m_angle >= 10: # if the angle of deviation is enough to care about
+			if m_angle >= 10 or m_angle <= -10: # if the angle of deviation is enough to care about
 				turn(m_angle)
+			
 
 			if dist_front() < 0.1: # if about to hit it     
 				speed(0, [0, 1]) # stop
