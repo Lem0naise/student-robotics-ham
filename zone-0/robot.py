@@ -5,7 +5,6 @@ import numpy as np
 
 R = Robot()
 
-
 # ---------- MARKER SETUP ----------
 
 ZONE_1_MARKERS = [25, 26, 27, 0, 1, 2]
@@ -106,10 +105,10 @@ TURN_VALUE = 0.005 # the value to change degrees into seconds
 
 def turn(angle):
 
-	if angle > 0: # if turning right
-		speed(0.5, [0])
-		speed(0, [1])
-	else: # if turning left
+	if angle > 0: # turning right
+		speed(0.5, [0]) 
+		speed(0, [1]) 
+	else: # turning left
 		speed(0, [0]) 
 		speed(0.5, [1])
 
@@ -128,6 +127,10 @@ def turn(angle):
 
 # ---------- MAIN PROGRAM ---------
 state = "stationary"
+
+# open the grabbers
+R.servo_board.servos[0].position = -1
+R.servo_board.servos[1].position = -1
 
 turn(-120) # very initial turn
 
@@ -318,15 +321,15 @@ while True:
 	if (state == "avoiding collision left"):
 		print(state)
 
-		speed(-1, [0, 1], True, 0.2)
-		speed(1, [0], True, 0.3)
+		speed(-1, [0, 1], True, 0.2) # reverse for 0.2s
+		speed(1, [0], True, 0.3) # turn right for 0.3s
 		state = old_state
 
 	if (state == "avoiding collision right"):
 		print(state)
 
-		speed(-1, [0, 1], True, 0.2)
-		speed(1, [1], True, 0.3)
+		speed(-1, [0, 1], True, 0.2)  # reverse for 0.2s
+		speed(1, [1], True, 0.3)  # turn left for 0.3s
 		state = old_state
 
 	R.sleep(0.2)
