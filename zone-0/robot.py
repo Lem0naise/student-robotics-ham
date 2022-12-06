@@ -18,7 +18,7 @@ ZONE_TO_MARKER = {
 	3: ZONE_4_MARKERS,
 	}
 
-HOME_MARKERS = ZONE_TO_MARKER[R.zone] # R.zone will automatically change when our zone changes
+HOME_MARKERS = ZONE_TO_MARKER[R.zone] # Automatically changes R.zone when our zone changes
 
 print(R.zone, HOME_MARKERS)
 
