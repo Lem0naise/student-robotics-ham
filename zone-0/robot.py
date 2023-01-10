@@ -1,6 +1,7 @@
 from sr.robot3 import *
 from operator import attrgetter
 from random import randrange
+import math
 
 R = Robot()
 
@@ -14,7 +15,7 @@ ZONE_4_MARKERS = [18, 19, 20, 21, 22, 23]
 ZONE_TO_MARKER = {
 	0: ZONE_1_MARKERS,
 	1: ZONE_2_MARKERS,
-	2: ZONE_3_MARKERS
+	2: ZONE_3_MARKERS,
 	3: ZONE_4_MARKERS,
 	}
 
@@ -28,11 +29,21 @@ OTHER_MARKERS = [x for x in range(26) if (x not in HOME_MARKERS) and (x not in [
 # all token markers have id of 99
 TOKEN_MARKERS = [99]
 
+ARENA_SIDE_LENGTH = 5750
+
+DIST_BETWEEN_ZONE_MARKERS = 718
+
 
 # ---------- DEGREE FUNCTION ----------
 
 def rad2deg(rad):
 	return rad * 57.2958
+
+
+# ---------- DEGREE FUNCTION ----------
+
+def m2mm(m):
+	return m * 1000
 
 
 # ---------- SPOTTING MARKER ID ----------
@@ -103,6 +114,183 @@ def turn(angle):
 	speed(0, [0, 1]) # stop both
 
 
+	
+# ---------- POSITION FINDING FUNCTION ---------
+
+def Triangulate():
+
+	cubes = R.camera.see() # make list of all visible cubes
+	
+	if len(cubes) == 0: # if no zone markers are found
+		return None
+	
+	else:
+
+		new_cubes = []
+		for each in cubes:
+			if each.id in range(0, 27):
+				new_cubes.append(each)
+		wall0 = []
+		wall1 = []
+		wall2 = []
+		wall3 = []
+		for each in new_cubes:
+			if each.id//7==0:
+				wall0.append(each)
+			elif each.id//7==1:
+				wall1.append(each)
+			elif each.id//7==2:
+				wall2.append(each)
+			elif each.id//7==3:
+				wall3.append(each)
+		if len(wall0)>1:
+			marker1 = wall0[0]
+			marker2 = wall0[1]
+		elif len(wall1)>1:
+			marker1 = wall1[0]
+			marker2 = wall1[1]
+		elif len(wall2)>1:
+			marker1 = wall2[0]
+			marker2 = wall2[1]
+		elif len(wall3)>1:
+			marker1 = wall3[0]
+			marker2 = wall3[1]
+		else:
+			return None
+		
+		if not any(new_cubes): # if no zone markers are found
+			return None
+		
+		markerlist = [[(i+1)*DIST_BETWEEN_ZONE_MARKERS,0] for i in range(7)]
+		for i in range(7):
+			markvec = [ARENA_SIDE_LENGTH,(i+1)*DIST_BETWEEN_ZONE_MARKERS]
+			markerlist.append(markvec)
+		for i in range(7):
+			markvec = [ARENA_SIDE_LENGTH-((i+1)*DIST_BETWEEN_ZONE_MARKERS),ARENA_SIDE_LENGTH]
+			markerlist.append(markvec)
+		for i in range(7):
+			markvec = [0,ARENA_SIDE_LENGTH-((i+1)*DIST_BETWEEN_ZONE_MARKERS)]
+			markerlist.append(markvec)		
+
+		dist1 = marker1.distance
+		dist2 = marker2.distance
+		id1 = marker1.id
+		id2 = marker2.id
+		vector1 = markerlist[id1]
+		vector2 = markerlist[id2]
+		markdist = abs((vector1[0]-vector2[0])+(vector1[1]-vector2[1]))
+		s = (dist1+dist2+markdist)/2
+		area = (s*(s-dist1)*(s-dist2)*(s-markdist))**0.5
+		
+		perpdist = area/(0.5*markdist)
+		wallno = id1//7
+
+		if wallno%2==0:
+			if wallno==0:
+				y = perpdist
+			else:
+				y = ARENA_SIDE_LENGTH - perpdist
+			x1 = vector1[0]
+			x2 = vector2[0]
+			xdist1a = (dist1**2 - perpdist**2)**0.5
+			xdist1b = -xdist1a
+			xdist2a = (dist2**2 - perpdist**2)**0.5
+			xdist2b = -xdist2a
+			poss0 = abs((x1+xdist1a)-(x2+xdist2a))
+			poss1 = abs((x1+xdist1b)-(x2+xdist2a))
+			poss2 = abs((x1+xdist1a)-(x2+xdist2b))
+			poss3 = abs((x1+xdist1b)-(x2+xdist2b))
+			posslist = [poss0,poss1,poss2,poss3]
+			minposs = posslist.index(min(posslist))
+			if poss0 < poss1 and poss0 < poss2 and poss0 < poss3:
+				x = ((x1+xdist1a)+(x2+xdist2a))/2
+			elif poss1 < poss0 and poss1 < poss2 and poss1 < poss3:
+				x = ((x1+xdist1b)+(x2+xdist2a))/2
+			elif poss2 < poss0 and poss2 < poss1 and poss2 < poss3:
+				x = ((x1+xdist1a)+(x2+xdist2b))/2
+			elif poss3 < poss0 and poss3 < poss2 and poss3 < poss1:
+				x = ((x1+xdist1b)+(x2+xdist2b))/2
+			return [x,y,wallno]
+
+		else:
+			if wallno==1:
+				x = ARENA_SIDE_LENGTH - perpdist
+			else:
+				x = perpdist
+			y1 = vector1[1]
+			y2 = vector2[1]
+			ydist1a = (dist1**2 - perpdist**2)**0.5
+			ydist1b = -ydist1a
+			ydist2a = (dist2**2 - perpdist**2)**0.5
+			ydist2b = -ydist2a
+			poss0 = abs((y1+ydist1a)-(y2+ydist2a))
+			poss1 = abs((y1+ydist1b)-(y2+ydist2a))
+			poss2 = abs((y1+ydist1a)-(y2+ydist2b))
+			poss3 = abs((y1+ydist1b)-(y2+ydist2b))
+			posslist = [poss0,poss1,poss2,poss3]
+			minposs = posslist.index(min(posslist))
+			if minposs==0:
+				y = ((y1+ydist1a)+(y2+ydist2a))/2
+			elif minposs==1:
+				y = ((y1+ydist1b)+(y2+ydist2a))/2
+			elif minposs==2:
+				y = ((y1+ydist1a)+(y2+ydist2b))/2
+			elif minposs==3:
+				y = ((y1+ydist1b)+(y2+ydist2b))/2
+			return [x,y,wallno]
+
+
+		#Origin is in the top-left hand corner
+		'''x_total = 0
+		y_total = 0
+		for each in new_cubes:
+			x_distance = 0
+			distance = each.distance
+			angle = each.spherical.rot_y
+
+			if each.id in range(0, 7):
+				#print(each.id)
+				if angle < 0:
+					#print('NEGATIVE ANGLE')
+					x_distance = distance * math.sin(- 1 * angle) + DIST_BETWEEN_ZONE_MARKERS * (each.id + 1)
+				else:
+					#print('POSITIVE ANGLE')
+					#print(distance, angle, math.sin(angle))
+					x_distance = - 1 * distance * math.sin(angle) + DIST_BETWEEN_ZONE_MARKERS * (each.id + 1)
+				y_distance = distance * math.cos(abs(angle))
+
+			elif each.id in ZONE_2_MARKERS:
+				if angle < 0:
+					y_distance = m2mm(distance * math.sin(- 1 * angle)) + DIST_BETWEEN_ZONE_MARKERS * (each.id - 6)
+				else:
+					y_distance = - 1 * m2mm(distance * math.sin(angle)) + DIST_BETWEEN_ZONE_MARKERS * (each.id - 6)
+				x_distance = ARENA_SIDE_LENGTH - m2mm(distance * math.cos(abs(angle)))
+			
+			elif each.id in ZONE_3_MARKERS:
+				if angle < 0:
+					x_distance = ARENA_SIDE_LENGTH + m2mm(distance * math.sin(- 1 * angle)) - DIST_BETWEEN_ZONE_MARKERS * (each.id - 13)
+				else:
+					x_distance = ARENA_SIDE_LENGTH - m2mm(distance * math.sin(angle)) - DIST_BETWEEN_ZONE_MARKERS * (each.id - 13)
+				y_distance = ARENA_SIDE_LENGTH - m2mm(distance * math.cos(abs(angle)))
+
+			elif each.id in ZONE_4_MARKERS:
+				if angle < 0:
+					y_distance = ARENA_SIDE_LENGTH + m2mm(distance * math.sin(- 1 * angle)) - DIST_BETWEEN_ZONE_MARKERS * (each.id - 20)
+				else:
+					y_distance = ARENA_SIDE_LENGTH - m2mm(distance * math.sin(angle)) - DIST_BETWEEN_ZONE_MARKERS * (each.id - 20)
+				x_distance = m2mm(distance * math.cos(abs(angle)))
+			x_total += x_distance
+			y_total += y_distance
+			print(x_distance, 'test')
+
+		x_average = x_total / len(new_cubes)
+		y_average = y_total / len(new_cubes)
+		return (x_average, y_average)'''
+
+
+
+		
+
 
 # ~~~~ TODO SMOOTHER MOVING ~~~~
 # ~~~~ BETTER AVOIDING OF OBSTACLES  ~~~~
@@ -119,6 +307,7 @@ turn(-120) # very initial turn
 while True:
 	
 	print(state) # logging state to console
+	#Triangulate()
 
 	# -------- SETUP --------
 	# -------- SETTING VIEW TO FIND MARKERS NOT IN HOME ZONE ---------
@@ -183,7 +372,7 @@ while True:
 			state = "looking" # reset to looking
 			
 		else:
-			if m_angle >= 10: # if the angle of deviation is enough to care about
+			if m_angle >= 10 or m_angle <= -10: # if the angle of deviation is enough to care about
 				turn(m_angle)
 
 			if dist_front() < 0.1: # if about to hit it     
@@ -199,8 +388,8 @@ while True:
 
 	elif (state == "grabbing"):
 		
-		R.servo_board.servos[0].position = 1
-		R.servo_board.servos[1].position = 1
+		R.servo_board.servos[0].position = 0.5
+		R.servo_board.servos[1].position = 0.5
 
 		if (dist_front() < 0.3): # if grabbed successfully
 			state = "finding home"
