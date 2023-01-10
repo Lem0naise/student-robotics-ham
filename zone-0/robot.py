@@ -18,6 +18,11 @@ ZONE_TO_MARKER = {
 	3: ZONE_4_MARKERS,
 	}
 
+WALL_1 = [x for x in range(7)];
+WALL_2 = [x for x in range(7, 14)];
+WALL_3 = [x for x in range(14, 21)];
+WALL_4 = [x for x in range(21, 28)];
+
 HOME_MARKERS = ZONE_TO_MARKER[R.zone] # Automatically changes R.zone when our zone changes in the competition
 
 print(R.zone, HOME_MARKERS)
