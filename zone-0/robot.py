@@ -300,7 +300,20 @@ def Navigate(x2, y2):
 	else:
 		m = (y2-y1)/(x2-x1)
 		angle = math.degrees(math.atan(m))
-		if x2>x1:
+		if angle<0:
+			angle += 180
+		if m == 0:
+			direction = 90
+		elif m>0 and x2>x1:
+			direction = 90-angle
+		elif m>0 and x2<x1:
+			direction = 270-angle
+		elif m<0 and x2<x1:
+			direction = angle-90
+		elif m<0 and x2>x1:
+			direction = angle+90
+
+
 			
 		
 
