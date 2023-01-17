@@ -33,6 +33,8 @@ ARENA_SIDE_LENGTH = 5750
 
 DIST_BETWEEN_ZONE_MARKERS = 718
 
+bearing = (90 + 90 * R.zone()) % 360
+
 
 # ---------- DEGREE FUNCTION ----------
 
@@ -102,6 +104,8 @@ TURN_VALUE = 0.005 # the value to change degrees into seconds
 
 def turn(angle):
 
+	global bearing
+
 	if angle > 0: # if turning right
 		speed(0.5, [0])
 		speed(0, [1])
@@ -110,7 +114,7 @@ def turn(angle):
 		speed(0.5, [1])
 
 	R.sleep(TURN_VALUE * abs(angle)) # wait until turned angle
-
+	bearing += angle
 	speed(0, [0, 1]) # stop both
 
 
@@ -210,7 +214,7 @@ def Triangulate():
 				x = ((x1+xdist1a)+(x2+xdist2b))/2
 			elif poss3 < poss0 and poss3 < poss2 and poss3 < poss1:
 				x = ((x1+xdist1b)+(x2+xdist2b))/2
-			return [x,y,wallno]
+			return [x,y]
 
 		else:
 			if wallno==1:
@@ -237,7 +241,7 @@ def Triangulate():
 				y = ((y1+ydist1a)+(y2+ydist2b))/2
 			elif minposs==3:
 				y = ((y1+ydist1b)+(y2+ydist2b))/2
-			return [x,y,wallno]
+			return [x,y]
 
 
 		#Origin is in the top-left hand corner
@@ -288,8 +292,21 @@ def Triangulate():
 		return (x_average, y_average)'''
 
 
-
+def Navigate(x2, y2):
+	x1 = Triangulate()[0]
+	y1 = Triangulate()[1]
+	if x2==x1:
+		direction = 0
+	else:
+		m = (y2-y1)/(x2-x1)
+		angle = math.degrees(math.atan(m))
+		if x2>x1:
+			
 		
+
+	
+	
+
 
 
 # ~~~~ TODO SMOOTHER MOVING ~~~~
@@ -388,8 +405,8 @@ while True:
 
 	elif (state == "grabbing"):
 		
-		R.servo_board.servos[0].position = 0.5
-		R.servo_board.servos[1].position = 0.5
+		R.servo_board.servos[0].position = 1
+		R.servo_board.servos[1].position = 1
 
 		if (dist_front() < 0.3): # if grabbed successfully
 			state = "finding home"
@@ -445,10 +462,27 @@ while True:
 
 		h_marker = marker(HOME_MARKERS)
 		if h_marker != None: # if seen a home marker
+			
+			current_coords = Triangulate()
+			if current_coords != None:
+				CUTOFF = ARENA_SIDE_LENGTH / 2
+				if current_coords[0] < CUTOFF and current_coords[1] < CUTOFF:
+					zone = 1
+				if current_coords[0] > CUTOFF and current_coords[1] < CUTOFF:
+					zone = 2
+				if current_coords[0] > CUTOFF and current_coords[1] > CUTOFF:
+					zone = 3
+				else:
+					zone = 4
 
-			if h_marker.distance <= 2500: # if the closest home marker is less than 2.5m away
-				state = "dropping" # set state to dropping
-				speed(0, [0, 1])
+
+
+				if zone == R.zone: # if the closest home marker is less than 2.5m away
+					state = "dropping" # set state to dropping
+					speed(0, [0, 1])
+
+			else:
+				state = "finding home"
 
 		else: # if cannot see a home marker
 
