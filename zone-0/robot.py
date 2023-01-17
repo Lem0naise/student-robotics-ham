@@ -388,8 +388,8 @@ while True:
 
 	elif (state == "grabbing"):
 		
-		R.servo_board.servos[0].position = 0.5
-		R.servo_board.servos[1].position = 0.5
+		R.servo_board.servos[0].position = 1
+		R.servo_board.servos[1].position = 1
 
 		if (dist_front() < 0.3): # if grabbed successfully
 			state = "finding home"
