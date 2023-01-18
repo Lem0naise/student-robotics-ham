@@ -33,7 +33,7 @@ ARENA_SIDE_LENGTH = 5750
 
 DIST_BETWEEN_ZONE_MARKERS = 718
 
-bearing = (90 + 90 * R.zone()) % 360
+bearing = (90 + 90 * R.zone) % 360
 
 
 # ---------- DEGREE FUNCTION ----------
@@ -120,6 +120,51 @@ def turn(angle):
 
 	
 # ---------- POSITION FINDING FUNCTION ---------
+def Biangulate(marker):
+	global bearing
+	northcorrection = bearing
+	wallno = marker.id // 7
+	distance = marker.distance
+	angle = math.degrees(marker.spherical.rot_y)+bearing
+	x_total = 0
+	y_total = 0
+
+	if each.id in range(0, 7):
+		#print(each.id)
+		if angle < 0:
+			#print('NEGATIVE ANGLE')
+			x_distance = distance * math.sin(- 1 * angle) + DIST_BETWEEN_ZONE_MARKERS * (each.id + 1)
+		else:
+			#print('POSITIVE ANGLE')
+			#print(distance, angle, math.sin(angle))
+			x_distance = - 1 * distance * math.sin(angle) + DIST_BETWEEN_ZONE_MARKERS * (each.id + 1)
+		y_distance = distance * math.cos(abs(angle))
+
+	elif each.id in ZONE_2_MARKERS:
+		if angle < 0:
+			y_distance = m2mm(distance * math.sin(- 1 * angle)) + DIST_BETWEEN_ZONE_MARKERS * (each.id - 6)
+		else:
+			y_distance = - 1 * m2mm(distance * math.sin(angle)) + DIST_BETWEEN_ZONE_MARKERS * (each.id - 6)
+		x_distance = ARENA_SIDE_LENGTH - m2mm(distance * math.cos(abs(angle)))
+	
+	elif each.id in ZONE_3_MARKERS:
+		if angle < 0:
+			x_distance = ARENA_SIDE_LENGTH + m2mm(distance * math.sin(- 1 * angle)) - DIST_BETWEEN_ZONE_MARKERS * (each.id - 13)
+		else:
+			x_distance = ARENA_SIDE_LENGTH - m2mm(distance * math.sin(angle)) - DIST_BETWEEN_ZONE_MARKERS * (each.id - 13)
+		y_distance = ARENA_SIDE_LENGTH - m2mm(distance * math.cos(abs(angle)))
+
+	elif each.id in ZONE_4_MARKERS:
+		if angle < 0:
+			y_distance = ARENA_SIDE_LENGTH + m2mm(distance * math.sin(- 1 * angle)) - DIST_BETWEEN_ZONE_MARKERS * (each.id - 20)
+		else:
+			y_distance = ARENA_SIDE_LENGTH - m2mm(distance * math.sin(angle)) - DIST_BETWEEN_ZONE_MARKERS * (each.id - 20)
+		x_distance = m2mm(distance * math.cos(abs(angle)))
+	
+	return (x_distance, y_distance)
+
+
+
 
 def Triangulate():
 
@@ -134,6 +179,10 @@ def Triangulate():
 		for each in cubes:
 			if each.id in range(0, 27):
 				new_cubes.append(each)
+		if len(new_cubes) == 0:
+			return None
+		elif len(new_cubes) == 1:
+			return Biangulate(new_cubes[-1])
 		wall0 = []
 		wall1 = []
 		wall2 = []
@@ -293,6 +342,7 @@ def Triangulate():
 
 
 def Navigate(x2, y2):
+	global bearing
 	x1 = Triangulate()[0]
 	y1 = Triangulate()[1]
 	if x2==x1:
@@ -312,7 +362,10 @@ def Navigate(x2, y2):
 			direction = angle-90
 		elif m<0 and x2>x1:
 			direction = angle+90
+	turn(direction-bearing)
+	speed(1, [0, 1]) # full speed
 
+	
 
 			
 		
@@ -356,7 +409,7 @@ while True:
 	# -------- FINDING TOKEN MARKERS --------
 
 	elif (state == "looking"):
-
+		print(Triangulate())
 		R.sleep(0.05) # pause before looking
 		
 		cubes = R.camera.see() # make list of all visible cubes
