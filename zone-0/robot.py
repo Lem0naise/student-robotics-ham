@@ -242,7 +242,7 @@ while True:
 		R.servo_board.servos[1].position = -1
 
 		R.sleep(0.2) # sleep for 0.2 seconds
-		speed(1, [0, 1], True, 0.2) # ram into box again
+		speed(1, [0, 1], True, 0.2) # ram into box again	
 		state = "grabbing" # try to grab again
 
 
