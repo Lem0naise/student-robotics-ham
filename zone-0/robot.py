@@ -53,7 +53,7 @@ def m2mm(m):
 def marker(ids): # array
 
 	cubes = R.camera.see() # make list of all visible cubes
-	
+	print('test')
 	if not any(mark.id in ids for mark in cubes): # if no zone markers are found
 		return None
 	
@@ -385,8 +385,23 @@ def Navigate(x2, y2):
 # ---------- MAIN PROGRAM ---------
 state = "stationary"
 
+<<<<<<< Updated upstream
 turn(-120) # very initial turn
 
+=======
+# open the grabbers
+R.servo_board.servos[0].position = -1
+R.servo_board.servos[1].position = -1
+
+turn(-90) # very initial turn
+speed(1, [0, 1])
+R.sleep(0.46)
+turn(100)
+speed(1, [0,1])
+R.sleep(1.0)
+speed(0, [0,1])
+R.sleep(10)
+>>>>>>> Stashed changes
 while True:
 	
 	print(state) # logging state to console
