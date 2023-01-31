@@ -1,19 +1,37 @@
 from sr.robot3 import *
-
-#import time
-from sr.robot3 import *
 R = Robot()
 
-#while True:
+
 R.kch.leds[UserLED.A] = Colour.RED
-    #R.kch.leds[UserLED.A] = Colour.OFF
-    #R.kch.leds[UserLED.A] = Colour.BLUE
+
+left_id = 1
+mid_id = 2
+right_id = 3
     
+lit_up = False
+
+
 while True:
-    #motor board srABC1, channel 0 to full power forward
-    R.motor_boards["SR0UDB"].motors[0].power = 1
-    R.motor_boards["SR0UDB"].motors[1].power = 1
-    # motor board srABC1, channel 1 to half power forward
-        #R.motor_boards["SR0UDB"].motors[1].power = -0.2
+    
+    markers = R.camera.see() # markers
+
+    for each in markers:
+        if each.id == mid_id:
+            R.khc.leds[UserLED.B] = Colour.BLUE # B
+            lit_up = True
+
+    if not lit_up:
+        for each in markers:
+            if each.id == left_id:
+                R.khc.leds[UserLED.A] = Colour.BLUE # A
+                lit_up = True
+            
+            elif each.id == right_id:
+                R.khc.leds[UserLED.C] = Colour.BLUE # C
         
-        #R.servo_board.servos[0].position = 0.2
+    
+    lit_up = False
+    R.sleep(0.1) 
+    #motor board srABC1, channel 0 to full power forward
+    #R.motor_boards["SR0UDB"].motors[0].power = 1
+    #R.motor_boards["SR0UDB"].motors[1].power = 1
