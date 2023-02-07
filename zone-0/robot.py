@@ -53,7 +53,6 @@ def m2mm(m):
 def marker(ids): # array
 
 	cubes = R.camera.see() # make list of all visible cubes
-	print('test')
 	if not any(mark.id in ids for mark in cubes): # if no zone markers are found
 		return None
 	
@@ -120,41 +119,41 @@ def turn(angle):
 
 	
 # ---------- POSITION FINDING FUNCTION ---------
-def Biangulate(marker):
+def Biangulate(each):
 	global bearing
 	northcorrection = bearing
-	wallno = marker.id // 7
-	distance = marker.distance
-	angle = math.degrees(marker.spherical.rot_y)+bearing
+	wallno = each.id // 7
+	distance = each.distance
+	angle = math.degrees(each.spherical.rot_y)+bearing
 	x_total = 0
 	y_total = 0
 
-	if each.id in range(0, 7):
+	if wallno == 0:
 		#print(each.id)
 		if angle < 0:
 			#print('NEGATIVE ANGLE')
-			x_distance = distance * math.sin(- 1 * angle) + DIST_BETWEEN_ZONE_MARKERS * (each.id + 1)
+			x_distance = m2mm(distance * math.sin(- 1 * angle)) + DIST_BETWEEN_ZONE_MARKERS * (each.id + 1)
 		else:
 			#print('POSITIVE ANGLE')
 			#print(distance, angle, math.sin(angle))
-			x_distance = - 1 * distance * math.sin(angle) + DIST_BETWEEN_ZONE_MARKERS * (each.id + 1)
-		y_distance = distance * math.cos(abs(angle))
+			x_distance = m2mm(- 1 * distance * math.sin(angle)) + DIST_BETWEEN_ZONE_MARKERS * (each.id + 1)
+		y_distance = m2mm(distance * math.cos(abs(angle)))
 
-	elif each.id in ZONE_2_MARKERS:
+	elif wallno == 1:
 		if angle < 0:
 			y_distance = m2mm(distance * math.sin(- 1 * angle)) + DIST_BETWEEN_ZONE_MARKERS * (each.id - 6)
 		else:
 			y_distance = - 1 * m2mm(distance * math.sin(angle)) + DIST_BETWEEN_ZONE_MARKERS * (each.id - 6)
 		x_distance = ARENA_SIDE_LENGTH - m2mm(distance * math.cos(abs(angle)))
 	
-	elif each.id in ZONE_3_MARKERS:
+	elif wallno == 2:
 		if angle < 0:
 			x_distance = ARENA_SIDE_LENGTH + m2mm(distance * math.sin(- 1 * angle)) - DIST_BETWEEN_ZONE_MARKERS * (each.id - 13)
 		else:
 			x_distance = ARENA_SIDE_LENGTH - m2mm(distance * math.sin(angle)) - DIST_BETWEEN_ZONE_MARKERS * (each.id - 13)
 		y_distance = ARENA_SIDE_LENGTH - m2mm(distance * math.cos(abs(angle)))
 
-	elif each.id in ZONE_4_MARKERS:
+	elif wallno == 3:
 		if angle < 0:
 			y_distance = ARENA_SIDE_LENGTH + m2mm(distance * math.sin(- 1 * angle)) - DIST_BETWEEN_ZONE_MARKERS * (each.id - 20)
 		else:
@@ -182,7 +181,7 @@ def Triangulate():
 		if len(new_cubes) == 0:
 			return None
 		elif len(new_cubes) == 1:
-			return Biangulate(new_cubes[-1])
+			print(Biangulate(new_cubes[-1]))
 		wall0 = []
 		wall1 = []
 		wall2 = []
@@ -383,25 +382,8 @@ def Navigate(x2, y2):
 
 
 # ---------- MAIN PROGRAM ---------
-state = "stationary"
-
-<<<<<<< Updated upstream
 turn(-120) # very initial turn
-
-=======
-# open the grabbers
-R.servo_board.servos[0].position = -1
-R.servo_board.servos[1].position = -1
-
-turn(-90) # very initial turn
-speed(1, [0, 1])
-R.sleep(0.46)
-turn(100)
-speed(1, [0,1])
-R.sleep(1.0)
-speed(0, [0,1])
-R.sleep(10)
->>>>>>> Stashed changes
+state = 'stationary'
 while True:
 	
 	print(state) # logging state to console
@@ -618,4 +600,3 @@ while True:
 		state = old_state
 
 	R.sleep(0.2)
-
