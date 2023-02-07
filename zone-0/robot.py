@@ -213,10 +213,12 @@ while True:
 			if dist_front() < 0.1: # if about to hit it     
 				speed(0, [0, 1]) # stop
 
-				if marker(TOKEN_MARKERS).distance <= 150: # if about to grab a token and not a wall or other bot
-					state = "grabbing"
-				else:
-					state = "empty"
+				closest_marker = marker(TOKEN_MARKERS)
+				if closest_marker:
+					if marker(TOKEN_MARKERS).distance <= 400: # if about to grab a token and not a wall or other bot
+						state = "grabbing"
+					else:
+						state = "empty"
 
 
 	# -------- GRABBING --------
