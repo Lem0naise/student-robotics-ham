@@ -215,7 +215,7 @@ while True:
 
 				closest_marker = marker(TOKEN_MARKERS)
 				if closest_marker:
-					if marker(TOKEN_MARKERS).distance <= 400: # if about to grab a token and not a wall or other bot
+					if closest_marker.distance <= 400: # if about to grab a token and not a wall or other bot
 						state = "grabbing"
 					else:
 						state = "empty"
