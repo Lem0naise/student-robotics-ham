@@ -56,28 +56,38 @@ def task_3():
 
     mid_id = 2
         
-    markers = R.camera.see()
+    while True:
+            
+        markers = R.camera.see()
 
-    for each in markers:
-        if each.id == mid_id:
-            d = each.distance
-            break
+        for each in markers:
+            if each.id == mid_id:
 
-    d /= 1000
-       
-    dist = ((d**2 - 1)**0.5) * 1000
-    
-    if dist <= 200:
-        R.kch.leds[UserLED.B] = Colour.BLUE
+                d = each.distance / 1000
+                                
+                dist = (abs(d**2 - 1)**0.5) * 1000
+                print('HYPOTENUSE', d)
+                print('DISTANCE: ', dist)
+                print('ANGLE', each.spherical.rot_y)
+                if dist <= 200:
+                    R.kch.leds[UserLED.B] = Colour.BLUE
 
-                
-    else:
-                
-        if each.spherical.rot_y > 0:
-            R.kch.leds[UserLED.A] = Colour.RED
-        else:
-            R.kch.leds[UserLED.C] = Colour.RED
-             
+                            
+                else:
+                            
+                    if each.spherical.rot_y > 0:
+                        R.kch.leds[UserLED.A] = Colour.RED
+                    else:
+                        R.kch.leds[UserLED.C] = Colour.RED
+
+
+                break 
+            
         
-    
-task_2()
+        R.sleep(0.5)
+
+        R.kch.leds[UserLED.A] = Colour.OFF
+        R.kch.leds[UserLED.B] = Colour.OFF
+        R.kch.leds[UserLED.C] = Colour.OFF
+
+task_3()
