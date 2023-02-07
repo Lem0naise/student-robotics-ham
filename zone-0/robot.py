@@ -33,6 +33,8 @@ OTHER_MARKERS = [x for x in range(26) if (x not in HOME_MARKERS) and (x not in [
 # all token markers have id of 99
 TOKEN_MARKERS = [99]
 
+bearing = (90 + 90 * R.zone) % 360
+
 
 # ---------- DEGREE AND RADIAN FUNCTIONS ----------
 
@@ -109,7 +111,7 @@ def speed(speed, motors, stop = False, time = None): # speed: float(-1, 1) ; mot
 TURN_VALUE = 0.005 # the value to change degrees into seconds
 
 def turn(angle):
-
+	global bearing
 	if angle > 0: # turning right
 		speed(0.5, [0]) 
 		speed(0, [1]) 
@@ -118,7 +120,7 @@ def turn(angle):
 		speed(0.5, [1])
 
 	R.sleep(TURN_VALUE * abs(angle)) # wait until turned angle
-
+	bearing += angle
 	speed(0, [0, 1]) # stop both
 
 
