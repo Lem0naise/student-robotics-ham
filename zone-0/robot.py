@@ -113,7 +113,7 @@ def turn(angle):
 		speed(0.5, [1])
 
 	R.sleep(TURN_VALUE * abs(angle)) # wait until turned angle
-	bearing += angle
+	bearing = (bearing+angle)%360
 	speed(0, [0, 1]) # stop both
 
 
@@ -124,7 +124,7 @@ def Biangulate(each):
 	northcorrection = bearing
 	wallno = each.id // 7
 	distance = each.distance
-	angle = math.degrees(each.spherical.rot_y)+bearing
+	angle = math.radians(math.degrees(each.spherical.rot_y) + bearing)
 	x_total = 0
 	y_total = 0
 
@@ -364,6 +364,7 @@ def Navigate(x2, y2):
 	turn(direction-bearing)
 	speed(1, [0, 1]) # full speed
 
+
 	
 
 			
@@ -600,3 +601,4 @@ while True:
 		state = old_state
 
 	R.sleep(0.2)
+	print(bearing)
