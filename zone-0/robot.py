@@ -287,7 +287,7 @@ while True:
 		h_marker = marker(HOME_MARKERS)
 		if h_marker != None: # if seen a home marker
 
-			if h_marker.distance <= 2500: # if the closest home marker is less than 2.5m away
+			if h_marker.distance <= 1000: # if the closest home marker is less than 2.5m away
 				state = "dropping" # set state to dropping
 				speed(0, [0, 1])
 
