@@ -120,6 +120,7 @@ def turn(angle):
 	
 # ---------- POSITION FINDING FUNCTION ---------
 def Biangulate(each):
+	print(each)
 	global bearing
 	northcorrection = bearing
 	wallno = each.id // 7
@@ -127,41 +128,33 @@ def Biangulate(each):
 	angle = math.radians(math.degrees(each.spherical.rot_y) + bearing)
 	x_total = 0
 	y_total = 0
+	if each.spherical.rot_y < 0:
+		angle = math.radians(math.degrees(-1 * each.spherical.rot_y) + bearing)
 
 	if wallno == 0:
 		#print(each.id)
-		if angle < 0:
-			#print('NEGATIVE ANGLE')
-			x_distance = m2mm(distance * math.sin(- 1 * angle)) + DIST_BETWEEN_ZONE_MARKERS * (each.id + 1)
-		else:
 			#print('POSITIVE ANGLE')
 			#print(distance, angle, math.sin(angle))
-			x_distance = m2mm(- 1 * distance * math.sin(angle)) + DIST_BETWEEN_ZONE_MARKERS * (each.id + 1)
-		y_distance = m2mm(distance * math.cos(abs(angle)))
+		x_distance = - 1 * distance * math.sin(angle) + DIST_BETWEEN_ZONE_MARKERS * (each.id + 1)
+		y_distance = distance * math.cos(abs(angle))
 
 	elif wallno == 1:
-		if angle < 0:
-			y_distance = m2mm(distance * math.sin(- 1 * angle)) + DIST_BETWEEN_ZONE_MARKERS * (each.id - 6)
-		else:
-			y_distance = - 1 * m2mm(distance * math.sin(angle)) + DIST_BETWEEN_ZONE_MARKERS * (each.id - 6)
-		x_distance = ARENA_SIDE_LENGTH - m2mm(distance * math.cos(abs(angle)))
+
+		y_distance = -1 * distance * math.sin(angle) + DIST_BETWEEN_ZONE_MARKERS * (each.id - 6)
+		x_distance = ARENA_SIDE_LENGTH - distance * math.cos(abs(angle))
 	
 	elif wallno == 2:
-		if angle < 0:
-			x_distance = ARENA_SIDE_LENGTH + m2mm(distance * math.sin(- 1 * angle)) - DIST_BETWEEN_ZONE_MARKERS * (each.id - 13)
-		else:
-			x_distance = ARENA_SIDE_LENGTH - m2mm(distance * math.sin(angle)) - DIST_BETWEEN_ZONE_MARKERS * (each.id - 13)
-		y_distance = ARENA_SIDE_LENGTH - m2mm(distance * math.cos(abs(angle)))
+		x_distance = ARENA_SIDE_LENGTH - distance * math.sin(angle) - DIST_BETWEEN_ZONE_MARKERS * (each.id - 13)
+		y_distance = ARENA_SIDE_LENGTH - distance * math.cos(abs(angle))
 
 	elif wallno == 3:
-		if angle < 0:
-			y_distance = ARENA_SIDE_LENGTH + m2mm(distance * math.sin(- 1 * angle)) - DIST_BETWEEN_ZONE_MARKERS * (each.id - 20)
-		else:
-			y_distance = ARENA_SIDE_LENGTH - m2mm(distance * math.sin(angle)) - DIST_BETWEEN_ZONE_MARKERS * (each.id - 20)
-		x_distance = m2mm(distance * math.cos(abs(angle)))
+		y_distance = ARENA_SIDE_LENGTH - distance * math.sin(angle) - DIST_BETWEEN_ZONE_MARKERS * (each.id - 20)
+		x_distance = distance * math.cos(abs(angle))
 	
-	return (x_distance, y_distance)
-
+	if x_distance < 0:
+		x_distance *= -1
+	if y_distance < 0:
+		y_distance *= -1
 
 
 
