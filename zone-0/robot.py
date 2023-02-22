@@ -2,6 +2,7 @@ from sr.robot3 import *
 from operator import attrgetter
 from random import randrange
 import numpy as np
+import math
 
 R = Robot()
 
@@ -33,7 +34,11 @@ OTHER_MARKERS = [x for x in range(26) if (x not in HOME_MARKERS) and (x not in [
 # all token markers have id of 99
 TOKEN_MARKERS = [99]
 
-bearing = (90 + 90 * R.zone) % 360
+ARENA_SIDE_LENGTH = 5750
+
+DIST_BETWEEN_ZONE_MARKERS = 718
+
+bearing = 360 - 90*(R.zone + 1)
 
 
 # ---------- DEGREE AND RADIAN FUNCTIONS ----------
@@ -120,7 +125,10 @@ def turn(angle):
 		speed(0.5, [1])
 
 	R.sleep(TURN_VALUE * abs(angle)) # wait until turned angle
-	bearing += angle
+	print('PREV BEARING:', bearing)
+	bearing = (bearing - angle) % 360
+	print('NEW BEARING:', bearing)
+	print('turn', angle)
 	speed(0, [0, 1]) # stop both
 
 
@@ -131,42 +139,68 @@ def turn(angle):
 # ~~~~ DONT GET STUCK ON STICKY OUT THINGS WHEN LEFT AND RIGHT CANNOT SEE ~~~~
 # ~~~~ IF GETS STUCK IN CORNER, CANNOT SEE HOME MARKERS ~~~~
 def Biangulate(each):
-	print(each)
-	global bearing
-	northcorrection = bearing
-	wallno = each.id // 7
-	distance = each.distance
-	angle = math.radians(math.degrees(each.spherical.rot_y) + bearing)
-	x_total = 0
-	y_total = 0
-	if each.spherical.rot_y < 0:
-		angle = math.radians(math.degrees(-1 * each.spherical.rot_y) + bearing)
+	# global bearing
+	# northcorrection = bearing
+	# wallno = each.id // 7
+	# distance = each.distance
+	# angle = math.radians(math.degrees(each.spherical.rot_y) + bearing)
+	# x_total = 0
+	# y_total = 0
+	# if each.spherical.rot_y < 0:
+	# 	angle = math.radians(math.degrees(-1 * each.spherical.rot_y) + bearing)
 
-	if wallno == 0:
-		#print(each.id)
-			#print('POSITIVE ANGLE')
-			#print(distance, angle, math.sin(angle))
-		x_distance = - 1 * distance * math.sin(angle) + DIST_BETWEEN_ZONE_MARKERS * (each.id + 1)
-		y_distance = distance * math.cos(abs(angle))
+	# if wallno == 0:
+	# 	#print(each.id)
+	# 		#print('POSITIVE ANGLE')
+	# 		#print(distance, angle, math.sin(angle))
+	# 	x_distance = - 1 * distance * math.sin(angle) + DIST_BETWEEN_ZONE_MARKERS * (each.id + 1)
+	# 	y_distance = distance * math.cos(abs(angle))
 
-	elif wallno == 1:
+	# elif wallno == 1:
 
-		y_distance = -1 * distance * math.sin(angle) + DIST_BETWEEN_ZONE_MARKERS * (each.id - 6)
-		x_distance = ARENA_SIDE_LENGTH - distance * math.cos(abs(angle))
+	# 	y_distance = -1 * distance * math.sin(angle) + DIST_BETWEEN_ZONE_MARKERS * (each.id - 6)
+	# 	x_distance = ARENA_SIDE_LENGTH - distance * math.cos(abs(angle))
 	
-	elif wallno == 2:
-		x_distance = ARENA_SIDE_LENGTH - distance * math.sin(angle) - DIST_BETWEEN_ZONE_MARKERS * (each.id - 13)
-		y_distance = ARENA_SIDE_LENGTH - distance * math.cos(abs(angle))
+	# elif wallno == 2:
+	# 	x_distance = ARENA_SIDE_LENGTH - distance * math.sin(angle) - DIST_BETWEEN_ZONE_MARKERS * (each.id - 13)
+	# 	y_distance = ARENA_SIDE_LENGTH - distance * math.cos(abs(angle))
 
-	elif wallno == 3:
-		y_distance = ARENA_SIDE_LENGTH - distance * math.sin(angle) - DIST_BETWEEN_ZONE_MARKERS * (each.id - 20)
-		x_distance = distance * math.cos(abs(angle))
+	# elif wallno == 3:
+	# 	y_distance = ARENA_SIDE_LENGTH - distance * math.sin(angle) - DIST_BETWEEN_ZONE_MARKERS * (each.id - 20)
+	# 	x_distance = distance * math.cos(abs(angle))
 	
-	if x_distance < 0:
-		x_distance *= -1
-	if y_distance < 0:
-		y_distance *= -1
+	# if x_distance < 0:
+	# 	x_distance *= -1
+	# if y_distance < 0:
+	# 	y_distance *= -1
 
+
+	# global bearing
+	# markerlist = [[(i+1)*DIST_BETWEEN_ZONE_MARKERS,0] for i in range(7)]
+	# for i in range(7):
+	# 	markvec = [ARENA_SIDE_LENGTH,(i+1)*DIST_BETWEEN_ZONE_MARKERS]
+	# 	markerlist.append(markvec)
+	# for i in range(7):
+	# 	markvec = [ARENA_SIDE_LENGTH-((i+1)*DIST_BETWEEN_ZONE_MARKERS),ARENA_SIDE_LENGTH]
+	# 	markerlist.append(markvec)
+	# for i in range(7):
+	# 	markvec = [0,ARENA_SIDE_LENGTH-((i+1)*DIST_BETWEEN_ZONE_MARKERS)]
+	# 	markerlist.append(markvec)	
+	# markx = markerlist[each.id][0]
+	# marky = markerlist[each.id][1]	
+	# distancetomarker = each.distance
+	# angletomarker = (360 - math.degrees(each.spherical.rot_y)) % 360
+	# theta = math.radians((bearing + angletomarker)%360)
+	# print('bearing = ', bearing)
+	# print('theta = ', math.degrees(theta))
+	# print('distance = ', distancetomarker)
+	# x = distancetomarker * math.cos(theta)
+	# y = distancetomarker * math.sin(theta)
+	# xcoord = markx - x
+	# ycoord = marky + y
+
+	# return xcoord, ycoord
+	pass
 
 
 def Triangulate():
@@ -314,13 +348,17 @@ while True:
 	if (state == "stationary"):		
 
 		o_angle = None
-
-		while o_angle == None: # while cannot yet see another marker
+		total_turned = 0
+		while o_angle == None and total_turned != 360: # while cannot yet see another marker
 			turn(30)
+			total_turned += 30
 			o_angle = marker_angle(OTHER_MARKERS)
 			R.sleep(0.1)
 
-		state = "looking"
+		if total_turned == 360:
+			state = "reversing"
+		else:
+			state = "looking"
 
 
 	# -------- FINDING TOKEN MARKERS --------
@@ -420,7 +458,6 @@ while True:
 	# -------- FINDING HOME TO RETURN TO  -------- 
 
 	elif (state == "finding home"):
-
 		h_angle = marker_angle(HOME_MARKERS) # find home marker
 		total_turned = 0
 
@@ -433,14 +470,40 @@ while True:
 			turn(15)
 			total_turned += 15
 
-
+		
 		if h_angle != None: # if we found a home marker
-			turn(h_angle) # turn the angle of the closest home marker
+			h_marker = marker(HOME_MARKERS)
+			if h_marker != None:
+				id = h_marker.id
+				markerlist = [[(i+1)*DIST_BETWEEN_ZONE_MARKERS,0] for i in range(7)]
+				for i in range(7):
+					markvec = [ARENA_SIDE_LENGTH,(i+1)*DIST_BETWEEN_ZONE_MARKERS]
+					markerlist.append(markvec)
+				for i in range(7):
+					markvec = [ARENA_SIDE_LENGTH-((i+1)*DIST_BETWEEN_ZONE_MARKERS),ARENA_SIDE_LENGTH]
+					markerlist.append(markvec)
+				for i in range(7):
+					markvec = [0,ARENA_SIDE_LENGTH-((i+1)*DIST_BETWEEN_ZONE_MARKERS)]
+					markerlist.append(markvec)
+				markvec = markerlist[id]
+				if markvec[1]==0 or markvec[1]==ARENA_SIDE_LENGTH:
+					criticaldistance = abs(2875 -markvec[0])+300
+				else:
+					criticaldistance = abs(2875 -markvec[1])+300
+				if h_marker.distance < criticaldistance:
+					state = "dropping" # set state to dropping
+					speed(0, [0, 1])
+				else:
+					turn(h_angle / 2)
+					state = "returning"
+			else:
+				turn(h_angle / 2) # turn the angle of the closest home marker
 
-			state = "returning"
+				state = "returning"
 
 		elif total_turned >= 360: # if instead we turned a full circle
-			pass	
+			speed(-1, [0, 1], True, 0.3)
+			speed(0, [0, 1])
 
 
 	# -------- RETURNING BACK TO HOME WITH A TOKEN ---------
@@ -450,11 +513,23 @@ while True:
 
 		h_marker = marker(HOME_MARKERS)
 		if h_marker != None: # if seen a home marker
-
-			x,y = Triangulate()
-			home = R.zone()
-			zonein = x//2875 + 2(y//2875)
-			if home == zonein:
+			id = h_marker.id
+			markerlist = [[(i+1)*DIST_BETWEEN_ZONE_MARKERS,0] for i in range(7)]
+			for i in range(7):
+				markvec = [ARENA_SIDE_LENGTH,(i+1)*DIST_BETWEEN_ZONE_MARKERS]
+				markerlist.append(markvec)
+			for i in range(7):
+				markvec = [ARENA_SIDE_LENGTH-((i+1)*DIST_BETWEEN_ZONE_MARKERS),ARENA_SIDE_LENGTH]
+				markerlist.append(markvec)
+			for i in range(7):
+				markvec = [0,ARENA_SIDE_LENGTH-((i+1)*DIST_BETWEEN_ZONE_MARKERS)]
+				markerlist.append(markvec)
+			markvec = markerlist[id]
+			if markvec[1]==0 or markvec[1]==ARENA_SIDE_LENGTH:
+				criticaldistance = abs(2875 -markvec[0])-100
+			else:
+				criticaldistance = abs(2875 -markvec[1])-100
+			if h_marker.distance < criticaldistance:
 				state = "dropping" # set state to dropping
 				speed(0, [0, 1])
 
@@ -477,7 +552,11 @@ while True:
 		state = "stationary" # reset to looking for markers
 
 
-
+	# -------- REVERSING -------------------
+	elif (state == "reversing"):
+		speed(-1, [0, 1], True, 0.3)
+		speed(0, [0, 1])
+		state = "stationary"
 	# -------- AVOIDING COLLISIONS ---------
 
 	left_dist = R.ruggeduino.pins[A0].analogue_read()
