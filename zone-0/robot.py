@@ -202,9 +202,8 @@ def Biangulate(each):
 	# return xcoord, ycoord
 	pass
 
-
+cubes_taken = 0
 def Triangulate():
-
 	cubes = R.camera.see() # make list of all visible cubes
 	
 	if len(cubes) == 0: # if no zone markers are found
@@ -355,7 +354,7 @@ while True:
 			o_angle = marker_angle(OTHER_MARKERS)
 			R.sleep(0.1)
 
-		if total_turned == 360:
+		if total_turned == 180:
 			state = "reversing"
 		else:
 			state = "looking"
@@ -370,7 +369,11 @@ while True:
 		cubes = R.camera.see() # make list of all visible cubes
 
 		if len(cubes) > 0: # if can see any cubes
-			closest = marker(TOKEN_MARKERS) # closest token marker object
+			closest = None
+			markers = R.camera.see() 
+			for m in markers:
+				if m.id == 99 and m.distance > 1500 and closest == None:
+					closest = m
 			if closest != None:
 				c_dist = closest.distance / 1000
 
@@ -467,7 +470,7 @@ while True:
 
 			h_angle = marker_angle(HOME_MARKERS) # see if a home marker appears
 
-			turn(15)
+			turn(-15)
 			total_turned += 15
 
 		
@@ -510,7 +513,10 @@ while True:
 	elif (state == "returning"):
 
 		speed(1, [0, 1])
-
+		if cubes_taken % 3 == 2:
+			R.sleep(2)
+			state = "dropping"
+			speed(0, [0, 1])
 		h_marker = marker(HOME_MARKERS)
 		if h_marker != None: # if seen a home marker
 			id = h_marker.id
@@ -542,7 +548,7 @@ while True:
 	# -------- DROPPING OFF TOKEN ---------
 
 	elif (state == "dropping"):
-
+		cubes_taken += 1
 		# release 
 		R.servo_board.servos[0].position = -1
 		R.servo_board.servos[1].position = -1
@@ -554,7 +560,7 @@ while True:
 
 	# -------- REVERSING -------------------
 	elif (state == "reversing"):
-		speed(-1, [0, 1], True, 0.3)
+		speed(-1, [0, 1], True, 0.7)
 		speed(0, [0, 1])
 		state = "stationary"
 	# -------- AVOIDING COLLISIONS ---------
