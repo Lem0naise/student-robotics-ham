@@ -132,12 +132,6 @@ def turn(angle):
 	speed(0, [0, 1]) # stop both
 
 
-
-# ~~~~ TODO SMOOTHER MOVING ~~~~
-# ~~~~ BETTER AVOIDING OF OBSTACLES  ~~~~
-# ~~~~ DONT AVOIDING WHEN GRABBING  ~~~~
-# ~~~~ DONT GET STUCK ON STICKY OUT THINGS WHEN LEFT AND RIGHT CANNOT SEE ~~~~
-# ~~~~ IF GETS STUCK IN CORNER, CANNOT SEE HOME MARKERS ~~~~
 def Biangulate(each):
 	# global bearing
 	# northcorrection = bearing
