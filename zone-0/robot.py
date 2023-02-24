@@ -324,13 +324,78 @@ def Triangulate():
 
 
 # ---------- MAIN PROGRAM ---------
-state = "stationary"
-
-# open the grabbers
 R.servo_board.servos[0].position = -1
 R.servo_board.servos[1].position = -1
+turn(-90) # very initial turn
+speed(1, [0, 1])
+R.sleep(0.5)
+turn(35)
+speed(1, [0, 1])
+R.sleep(0.3)
+turn(115)	
+speed(1, [0, 1])
+R.sleep(0.8)
+turn(35)
+stopped = False
+while not stopped:
+	speed(1, [0, 1]) # full speed
+	R.sleep(0.1)
 
-turn(-120) # very initial turn
+	m_angle = marker_angle(TOKEN_MARKERS) # check angle to the closest marker
+	
+	if m_angle == None: # if for some reason have completely lost sight of marker
+		pass
+		
+	else:
+		if m_angle >= 5 or m_angle <= -5: # if the angle of deviation is enough to care about
+			turn(m_angle)
+	if dist_front() < 0.11 or dist_front() > 1.99: # if about to hit it     
+		speed(0.2, [0, 1]) # stop
+		stopped = True
+R.sleep(0.1)
+R.servo_board.servos[0].position = 1
+R.servo_board.servos[1].position = 1
+R.sleep(0.2)
+speed(-1, [0, 1])
+R.sleep(0.5)
+R.servo_board.servos[0].position = -1
+R.servo_board.servos[1].position = -1
+R.sleep(0.3)
+turn(15)
+speed(1, [0, 1])
+R.sleep(0.6)
+speed(0.2, [0, 1])
+R.sleep(0.1)
+if dist_front() < 0.12:
+	R.servo_board.servos[0].position = 1
+	R.servo_board.servos[1].position = 1
+else:
+	speed(1, [0, 1])
+	R.sleep(0.7)
+	R.servo_board.servos[0].position = 1
+	R.servo_board.servos[1].position = 1
+R.sleep(0.2)
+speed(-1, [0, 1])
+R.sleep(2)
+speed(1, [0, 1])
+turn(300)
+speed(1, [0, 1])
+R.sleep(3.4)
+R.servo_board.servos[0].position = -1
+R.servo_board.servos[1].position = -1
+speed(-1, [0, 1])
+R.sleep(0.3)
+R.servo_board.servos[0].position = 1
+R.servo_board.servos[1].position = 1
+R.sleep(0.2)
+R.servo_board.servos[0].position = -1
+R.servo_board.servos[1].position = -1
+R.sleep(0.5)
+turn(-270)
+speed(1, [0, 1])
+R.sleep(0.47)
+state = 'stationary'
+count = 0
 
 while True:
 	
