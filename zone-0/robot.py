@@ -25,6 +25,9 @@ WALL_3 = [x for x in range(14, 21)];
 WALL_4 = [x for x in range(21, 28)];
 
 HOME_MARKERS = ZONE_TO_MARKER[R.zone] # Automatically change R.zone when our zone changes in the competition
+CLOCKWISE_MARKERS = ZONE_TO_MARKER[(R.zone + 1) % 4]
+ANTICLOCKWISE_MARKERS = ZONE_TO_MARKER[(R.zone - 1) % 4]
+DIAGONAL_MARKERS = ZONE_TO_MARKER[(R.zone + 2) % 4]
 
 print(R.zone, HOME_MARKERS)
 
@@ -125,10 +128,7 @@ def turn(angle):
 		speed(0.5, [1])
 
 	R.sleep(TURN_VALUE * abs(angle)) # wait until turned angle
-	print('PREV BEARING:', bearing)
 	bearing = (bearing - angle) % 360
-	print('NEW BEARING:', bearing)
-	print('turn', angle)
 	speed(0, [0, 1]) # stop both
 
 
@@ -376,7 +376,7 @@ else:
 	R.servo_board.servos[1].position = 1
 R.sleep(0.2)
 speed(-1, [0, 1])
-R.sleep(2)
+R.sleep(2.4)
 speed(1, [0, 1])
 turn(300)
 speed(1, [0, 1])
@@ -431,7 +431,7 @@ while True:
 			closest = None
 			markers = R.camera.see() 
 			for m in markers:
-				if m.id == 99 and m.distance > 1500 and closest == None:
+				if m.id > 27 and m.distance > 1500 and closest == None:
 					closest = m
 			if closest != None:
 				c_dist = closest.distance / 1000
@@ -614,6 +614,7 @@ while True:
 
 		R.sleep(0.2)
 		speed(-1, [0, 1], True, 0.2) # reverse
+		turn(180)
 		state = "stationary" # reset to looking for markers
 
 
