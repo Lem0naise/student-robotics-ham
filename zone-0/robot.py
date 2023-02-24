@@ -476,7 +476,7 @@ while True:
 				turn(m_angle)
 			
 
-			if dist_front() < 0.1: # if about to hit it     
+			if dist_front() < 0.15: # if about to hit it     
 				speed(0, [0, 1]) # stop
 
 
@@ -556,10 +556,10 @@ while True:
 					state = "dropping" # set state to dropping
 					speed(0, [0, 1])
 				else:
-					turn(h_angle / 2)
+					turn(h_angle)
 					state = "returning"
 			else:
-				turn(h_angle / 2) # turn the angle of the closest home marker
+				turn(h_angle) # turn the angle of the closest home marker
 
 				state = "returning"
 
