@@ -59,7 +59,7 @@ def rad2deg(rad):
 TURN_VALUE = 0.0244 # the value to change degrees into seconds
 
 def turn(angle):
-	global bearing
+
 	if angle > 0: # turning right
 		speed(0.15, [0]) 
 		speed(-0.15, [1]) 
@@ -160,8 +160,7 @@ while True:
 
 	elif (state == "empty"):
 
-		speed(-1, [0, 1], True, 0.1) # reverse for 0.1 seconds
-		c_angle = 70 # turn 70 (random) degrees to right
+		c_angle = -30 # turn 70 (random) degrees to right
 		turn(c_angle)
 		state = "looking" # set back to looking for markers
 	
@@ -178,7 +177,7 @@ while True:
 		closest = token
 		if (closest == None) or (closest.distance > old_distance+30): # if the new closest marker is further away (plus 30mm)
 			print("Hit token")
-			speed(0.4, [0, 1], True, 0.5) # full speed
+			speed(0.4, [0, 1], True, 0.8) # full speed for another 0.8 seconds
 			speed(0, [0, 1]) # stop
 			R.sleep(0.5)
 			turn(-100)
@@ -195,9 +194,9 @@ while True:
 			if m_angle == None: # if for some reason have completely lost sight of marker
 				state = "looking" # reset to looking
 			else:
-				print(abs(m_angle))
+				print(m_angle)
 				if abs(m_angle) > 5: # if the angle of deviation is enough to care about
-					turn(m_angle-2)
+					turn(m_angle-5)
 		
 
 			old_distance = closest.distance
@@ -206,7 +205,7 @@ while True:
 	
 	elif (state == "going home"):
 
-		speed(0.1, [0, 1]) # head towards the home marker (slowly for testing)
+		speed(0.4, [0, 1]) # head towards the home marker
 		m_home = marker(HOME_MARKERS)
 		if m_home == None: # once can no longer see home
 			state = "dropping"
