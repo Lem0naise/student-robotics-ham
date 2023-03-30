@@ -6,7 +6,7 @@ id_to_board = {
 	0: "SR0UDB",
 	1: "SR0VG1M"
 }
-TOKEN_MARKERS = [73]
+TOKEN_MARKERS = [73, 65] # ONLY 73 for COMP
 
 # ---------- MARKER SETUP ----------
 
@@ -27,8 +27,8 @@ WALL_3 = [x for x in range(14, 21)];
 WALL_4 = [x for x in range(21, 28)];
 
 # Use R.zone instead
-HOME_MARKERS = ZONE_TO_MARKER[1] # Automatically change R.zone when our zone changes in the competition
-print(1, HOME_MARKERS)
+HOME_MARKERS = ZONE_TO_MARKER[R.zone][2:-2] # Get two corner markers - Automatically change R.zone when our zone changes in the competition
+print(R.zone, HOME_MARKERS)
 
 
 #R.motor_boards["SR0VG1M"].motors[0] BACK RIGHT WHEEL
@@ -107,16 +107,17 @@ def marker_angle(ids):
 
 
 state = "stationary"
+second = False
+very_start = True
+turn(-90) # turn left to start
 
 
 while True:
 	
 	print(state)
-	old_state = state
 
 	if state == "stationary":
 		state = "looking"
-
 
 	# -------- FINDING TOKEN MARKERS --------
 
@@ -124,17 +125,16 @@ while True:
 
 		R.sleep(0.05) # pause before looking
 		
-		cubes = R.camera.see() # make list of all visible cubes
+		markers = R.camera.see() # make list of all visible cubes
 
-		if len(cubes) > 0: # if can see any cubes
+		if len(markers) > 0: # if can see any cubes
 			closest = None
-			markers = cubes
 			print(markers)
 			for m in markers:
 				print()
 				print(m.distance)
 	
-				if m.id == 73 and m.distance > 0 and closest == None: # if is a token, and 50cm away, and not already a closest
+				if m.id in TOKEN_MARKERS and m.distance > 500 and closest == None: # if is a token, and 50cm away, and not already a closest
 					closest = m
 
 			if closest != None:
@@ -146,14 +146,64 @@ while True:
 				turn(c_angle)
 				R.sleep(0.1)
 				old_distance = closest.distance
+				degrees_turned = 0
 				state = "moving"
-				iterator = 0
+		
 			else:
 				state = "empty"
 
 		else:
 
 			state = "empty"
+
+	# -------- FINDING SECOND TOKEN --------
+
+	elif (state == "looking for second"):
+		if degrees_turned>=360:
+
+			R.sleep(0.5)
+			turn(-100)
+			R.sleep(0.2)
+			while marker(HOME_MARKERS) == None:
+				turn(-30)
+				R.sleep(0.5) # wait for 0.5 seconds to take a picture
+
+			second = False
+			state = "going home" # go home if gone in a circle
+		else:
+			turn(-30)
+
+			R.sleep(0.05) # pause before looking
+			cubes = R.camera.see() # make list of all visible cubes
+			if len(cubes) > 0: # if can see any cubes
+				closest = None
+				markers = cubes
+				print(markers)
+				for m in markers:
+					print()
+					print(m.distance)
+	
+					if m.id in TOKEN_MARKERS and m.distance > 0 and closest == None: # if is a token, and 50cm away, and not already a closest
+						closest = m
+
+				if closest != None:
+
+					c_dist = closest.distance / 1000
+
+					# -- GETTING ROTATION INFORMATION -- 
+					c_angle = rad2deg(closest.spherical.rot_y)
+					turn(c_angle)
+					R.sleep(0.1)
+					old_distance = closest.distance
+		
+					state = "moving"
+				else:
+					state = "empty 2"
+			else:
+				state = "empty 2"
+
+			degrees_turned += 30
+
 
 
 	# -------- SPINNING IF CANNOT SEE ANY MARKERS --------
@@ -164,7 +214,12 @@ while True:
 		turn(c_angle)
 		state = "looking" # set back to looking for markers
 	
-	
+	elif (state == "empty 2"):
+
+		c_angle = -30 # turn 70 (random) degrees to right
+		turn(c_angle)
+		state = "looking for second" # set back to looking for markers
+
 
 	# -------- GOING TO TOKEN --------
 
@@ -177,15 +232,24 @@ while True:
 		closest = token
 		if (closest == None) or (closest.distance > old_distance+30): # if the new closest marker is further away (plus 30mm)
 			print("Hit token")
-			speed(0.4, [0, 1], True, 0.8) # full speed for another 0.8 seconds
+			remaining_speed = 0.8
+			if second:
+				remaining_speed = 1.0
+			speed(0.4, [0, 1], True, remaining_speed) # full speed for another 0.8 seconds
 			speed(0, [0, 1]) # stop
-			R.sleep(0.5)
-			turn(-100)
-			R.sleep(0.2)
-			while marker(HOME_MARKERS) == None:
-				turn(-30)
-				R.sleep(0.5) # wait for 0.5 seconds to take a picture
-			state = "going home"
+
+			if not second:
+				state = "looking for second"
+				second = True
+			else:
+				R.sleep(0.5)
+				turn(-100)
+				R.sleep(0.2)
+				while marker(HOME_MARKERS) == None:
+					turn(-30)
+					R.sleep(0.5) # wait for 0.5 seconds to take a picture
+			
+				state = "going home"
 	
 
 		else:
@@ -223,6 +287,8 @@ while True:
 		state = "home"
 
 	elif (state == "home"):
-		speed(0, [0, 1])
+		turn(-180)
+		state = "looking"
 
+	
 	R.sleep(0.2)
