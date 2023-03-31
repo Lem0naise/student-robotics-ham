@@ -571,7 +571,7 @@ while True:
 			closest = None
 			markers = R.camera.see() 
 			for m in markers:
-				if m.id > 27 and m.cubecoords
+				if m.id > 27 and m.cubecoords:
 					closest = m
 			if closest != None:
 				c_dist = closest.distance / 1000
