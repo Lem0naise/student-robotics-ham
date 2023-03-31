@@ -43,9 +43,10 @@ DIST_BETWEEN_ZONE_MARKERS = 718
 
 bearing = 360 - 90*(R.zone + 1)
 
-
+IDEAL_BEARING = (bearing + 90) % 360 # zone closest to us
+OTHER_POSSIBLE_BEARING = (bearing - 90) % 360 # zone second closest to us
 # ---------- DEGREE AND RADIAN FUNCTIONS ----------
-
+# These already exist under math library but why not make our own
 def d2r(degrees):
     """
     convert from degrees to radians
@@ -118,6 +119,15 @@ def speed(speed, motors, stop = False, time = None): # speed: float(-1, 1) ; mot
 
 TURN_VALUE = 0.005 # the value to change degrees into seconds
 
+# Great function here
+def ChangeCoordSystem(gewowioijgr):
+	return [gewowioijgr[0], ARENA_SIDE_LENGTH - gewowioijgr[1]]
+
+
+
+# This needs changing: to do list
+# Change the turn value based on average difference between triangulate bearing and predicted bearing
+# Factor in time for motors to get up to speed
 def turn(angle):
 	global bearing
 	if angle > 0: # turning right
@@ -131,7 +141,7 @@ def turn(angle):
 	bearing = (bearing - angle) % 360
 	speed(0, [0, 1]) # stop both
 
-
+# Mess of navigation functions here, TriangulateComplicate is the only reliable one at the moment
 def Biangulate(each):
 	# global bearing
 	# northcorrection = bearing
@@ -239,8 +249,9 @@ def Triangulate():
 			marker1 = wall3[0]
 			marker2 = wall3[1]
 		else:
-			return None
-		
+			marker1 = new_cubes[0]
+			marker2 = new_cubes[1]
+
 		if not any(new_cubes): # if no zone markers are found
 			return None
 		
@@ -261,146 +272,236 @@ def Triangulate():
 		id2 = marker2.id
 		vector1 = markerlist[id1]
 		vector2 = markerlist[id2]
-		markdist = abs((vector1[0]-vector2[0])+(vector1[1]-vector2[1]))
+		markdist = ((vector1[0]-vector2[0])**2+(vector1[1]-vector2[1])**2)**0.5
 		s = (dist1+dist2+markdist)/2
 		area = (s*(s-dist1)*(s-dist2)*(s-markdist))**0.5
 		
 		perpdist = area/(0.5*markdist)
-		wallno = id1//7
+		marker1radius = dist1
+		marker2radius = dist2
+		linegradient = (vector2[1] - vector1[1]) / (vector2[0] - vector1[0])
+		
+		# wallno = id1//7
 
-		if wallno%2==0:
-			if wallno==0:
-				y = perpdist
-			else:
-				y = ARENA_SIDE_LENGTH - perpdist
-			x1 = vector1[0]
-			x2 = vector2[0]
-			xdist1a = (dist1**2 - perpdist**2)**0.5
-			xdist1b = -xdist1a
-			xdist2a = (dist2**2 - perpdist**2)**0.5
-			xdist2b = -xdist2a
-			poss0 = abs((x1+xdist1a)-(x2+xdist2a))
-			poss1 = abs((x1+xdist1b)-(x2+xdist2a))
-			poss2 = abs((x1+xdist1a)-(x2+xdist2b))
-			poss3 = abs((x1+xdist1b)-(x2+xdist2b))
-			posslist = [poss0,poss1,poss2,poss3]
-			minposs = posslist.index(min(posslist))
-			if poss0 < poss1 and poss0 < poss2 and poss0 < poss3:
-				x = ((x1+xdist1a)+(x2+xdist2a))/2
-			elif poss1 < poss0 and poss1 < poss2 and poss1 < poss3:
-				x = ((x1+xdist1b)+(x2+xdist2a))/2
-			elif poss2 < poss0 and poss2 < poss1 and poss2 < poss3:
-				x = ((x1+xdist1a)+(x2+xdist2b))/2
-			elif poss3 < poss0 and poss3 < poss2 and poss3 < poss1:
-				x = ((x1+xdist1b)+(x2+xdist2b))/2
-			return [x,y]
+		# if wallno%2==0:
+		# 	if wallno==0:
+		# 		y = perpdist
+		# 	else:
+		# 		y = ARENA_SIDE_LENGTH - perpdist
+		# 	x1 = vector1[0]
+		# 	x2 = vector2[0]
+		# 	xdist1a = (dist1**2 - perpdist**2)**0.5
+		# 	xdist1b = -xdist1a
+		# 	xdist2a = (dist2**2 - perpdist**2)**0.5
+		# 	xdist2b = -xdist2a
+		# 	poss0 = abs((x1+xdist1a)-(x2+xdist2a))
+		# 	poss1 = abs((x1+xdist1b)-(x2+xdist2a))
+		# 	poss2 = abs((x1+xdist1a)-(x2+xdist2b))
+		# 	poss3 = abs((x1+xdist1b)-(x2+xdist2b))
+		# 	posslist = [poss0,poss1,poss2,poss3]
+		# 	minposs = posslist.index(min(posslist))
+		# 	if poss0 < poss1 and poss0 < poss2 and poss0 < poss3:
+		# 		x = ((x1+xdist1a)+(x2+xdist2a))/2
+		# 	elif poss1 < poss0 and poss1 < poss2 and poss1 < poss3:
+		# 		x = ((x1+xdist1b)+(x2+xdist2a))/2
+		# 	elif poss2 < poss0 and poss2 < poss1 and poss2 < poss3:
+		# 		x = ((x1+xdist1a)+(x2+xdist2b))/2
+		# 	elif poss3 < poss0 and poss3 < poss2 and poss3 < poss1:
+		# 		x = ((x1+xdist1b)+(x2+xdist2b))/2
+		# 	return [x,y]
 
+		# else:
+		# 	if wallno==1:
+		# 		x = ARENA_SIDE_LENGTH - perpdist
+		# 	else:
+		# 		x = perpdist
+		# 	y1 = vector1[1]
+		# 	y2 = vector2[1]
+		# 	ydist1a = (dist1**2 - perpdist**2)**0.5
+		# 	ydist1b = -ydist1a
+		# 	ydist2a = (dist2**2 - perpdist**2)**0.5
+		# 	ydist2b = -ydist2a
+		# 	poss0 = abs((y1+ydist1a)-(y2+ydist2a))
+		# 	poss1 = abs((y1+ydist1b)-(y2+ydist2a))
+		# 	poss2 = abs((y1+ydist1a)-(y2+ydist2b))
+		# 	poss3 = abs((y1+ydist1b)-(y2+ydist2b))
+		# 	posslist = [poss0,poss1,poss2,poss3]
+		# 	minposs = posslist.index(min(posslist))
+		# 	if minposs==0:
+		# 		y = ((y1+ydist1a)+(y2+ydist2a))/2
+		# 	elif minposs==1:
+		# 		y = ((y1+ydist1b)+(y2+ydist2a))/2
+		# 	elif minposs==2:
+		# 		y = ((y1+ydist1a)+(y2+ydist2b))/2
+		# 	elif minposs==3:
+		# 		y = ((y1+ydist1b)+(y2+ydist2b))/2
+		# 	return [x,y]
+def Magnitude(vector):
+	return (vector[0] ** 2 + vector[1] ** 2)**(1/2)
+
+def Arctan(x):
+	if math.atan(x) < 0:
+		return math.atan(x)+(math.pi)
+	else:
+		return math.atan(x)	       
+
+def RotateVector(vec, angle):
+	newVec = [vec[0] * math.cos(angle) + vec[1] * -1 * math.sin(angle), vec[0] * math.sin(angle) + vec[1] * math.cos(angle)]
+	return newVec
+
+
+def TriangulateComplicate(): 
+	cubes = R.camera.see()
+	new_cubes = []
+	for each in cubes:
+		if each.id in range(0, 27):
+			new_cubes.append(each)
+	if len(new_cubes) > 1:
+		marker1 = new_cubes[0]
+		marker2 = new_cubes[1]
+		marker1angle = marker1.spherical.rot_y
+		marker2angle = marker2.spherical.rot_y
+		if marker1angle > marker2angle:
+			marker2 = new_cubes[0]
+			marker1 = new_cubes[1]
+			marker1angle = marker1.spherical.rot_y
+			marker2angle = marker2.spherical.rot_y
+		markerlist = [ChangeCoordSystem([(i+1)*DIST_BETWEEN_ZONE_MARKERS,0]) for i in range(7)]
+		for i in range(7):
+			markvec = [ARENA_SIDE_LENGTH,(i+1)*DIST_BETWEEN_ZONE_MARKERS]
+			markerlist.append(ChangeCoordSystem(markvec))
+		for i in range(7):
+			markvec = [ARENA_SIDE_LENGTH-((i+1)*DIST_BETWEEN_ZONE_MARKERS),ARENA_SIDE_LENGTH]
+			markerlist.append(ChangeCoordSystem(markvec))
+		for i in range(7):
+			markvec = [0,ARENA_SIDE_LENGTH-((i+1)*DIST_BETWEEN_ZONE_MARKERS)]
+			markerlist.append(ChangeCoordSystem(markvec))
+		marker1vec = markerlist[marker1.id]
+		marker2vec = markerlist[marker2.id]
+		veca = [(marker2vec[0] - marker1vec[0]),(marker2vec[1] - marker1vec[1])]
+		ax = veca[0]
+		ay = veca[1]
+		a = Magnitude(veca)
+		b = marker1.distance
+		c = marker2.distance
+		costheta = (a**2 + b**2 - c**2)/(2*a*b)
+		theta = math.acos(costheta)
+		veca[0] *= b / a
+		veca[1] *= b / a
+		theta = 2*math.pi - theta
+		vecb = RotateVector(veca, theta)
+		bcoord = [marker1vec[0] + vecb[0], marker1vec[1] + vecb[1]]
+
+		bx = (marker1vec[0] - bcoord[0])
+		by = (marker1vec[1] - bcoord[1])
+		costheta = bx / b
+		sintheta = by / b
+		a = math.acos(costheta)
+		b = 2 * math.pi - a
+		c = math.asin(sintheta)
+		d = math.pi - c
+		if c < 0:
+			c += 2*math.pi
+		if d < 0:
+			d += 2*math.pi
+		acdiff = abs(a - c)
+		addiff = abs(a - d)
+		bcdiff = abs(b - c)
+		bddiff = abs(b - d)
+		difflist = [acdiff, addiff, bcdiff, bddiff]
+		difflist.sort()
+		if difflist[0] == acdiff:
+			bearing = (a + c) / 2
+		elif difflist[0] == addiff:
+			bearing = (a + d) / 2
+		elif difflist[0] == bcdiff:
+			bearing = (b + c) / 2
 		else:
-			if wallno==1:
-				x = ARENA_SIDE_LENGTH - perpdist
-			else:
-				x = perpdist
-			y1 = vector1[1]
-			y2 = vector2[1]
-			ydist1a = (dist1**2 - perpdist**2)**0.5
-			ydist1b = -ydist1a
-			ydist2a = (dist2**2 - perpdist**2)**0.5
-			ydist2b = -ydist2a
-			poss0 = abs((y1+ydist1a)-(y2+ydist2a))
-			poss1 = abs((y1+ydist1b)-(y2+ydist2a))
-			poss2 = abs((y1+ydist1a)-(y2+ydist2b))
-			poss3 = abs((y1+ydist1b)-(y2+ydist2b))
-			posslist = [poss0,poss1,poss2,poss3]
-			minposs = posslist.index(min(posslist))
-			if minposs==0:
-				y = ((y1+ydist1a)+(y2+ydist2a))/2
-			elif minposs==1:
-				y = ((y1+ydist1b)+(y2+ydist2a))/2
-			elif minposs==2:
-				y = ((y1+ydist1a)+(y2+ydist2b))/2
-			elif minposs==3:
-				y = ((y1+ydist1b)+(y2+ydist2b))/2
-			return [x,y]
+			bearing = (b + d) / 2
+		bearing += marker1angle
+		bearing = bearing%(2*math.pi)
+		bearing = math.degrees(bearing)
+		return bcoord
 
 
 # ---------- MAIN PROGRAM ---------
-R.servo_board.servos[0].position = -1
-R.servo_board.servos[1].position = -1
-turn(-90) # very initial turn
-speed(1, [0, 1])
-R.sleep(0.5)
-turn(35)
-speed(1, [0, 1])
-R.sleep(0.3)
-turn(115)	
-speed(1, [0, 1])
-R.sleep(0.8)
-turn(35)
-stopped = False
-while not stopped:
-	speed(1, [0, 1]) # full speed
-	R.sleep(0.1)
+# This was for virtual competition - we cannot grab gold any more
+# R.servo_board.servos[0].position = -1
+# R.servo_board.servos[1].position = -1
+# turn(-90) # very initial turn
+# speed(1, [0, 1])
+# R.sleep(0.5)
+# turn(35)
+# speed(1, [0, 1])
+# R.sleep(0.3)
+# turn(115)	
+# speed(1, [0, 1])
+# R.sleep(0.8)
+# turn(35)
+# stopped = False
+# while not stopped:
+# 	speed(1, [0, 1]) # full speed
+# 	R.sleep(0.1)
 
-	m_angle = marker_angle(TOKEN_MARKERS) # check angle to the closest marker
+# 	m_angle = marker_angle(TOKEN_MARKERS) # check angle to the closest marker
 	
-	if m_angle == None: # if for some reason have completely lost sight of marker
-		pass
+# 	if m_angle == None: # if for some reason have completely lost sight of marker
+# 		pass
 		
-	else:
-		if m_angle >= 5 or m_angle <= -5: # if the angle of deviation is enough to care about
-			turn(m_angle)
-	if dist_front() < 0.11 or dist_front() > 1.99: # if about to hit it     
-		speed(0.2, [0, 1]) # stop
-		stopped = True
-R.sleep(0.1)
-R.servo_board.servos[0].position = 1
-R.servo_board.servos[1].position = 1
-R.sleep(0.2)
-speed(-1, [0, 1])
-R.sleep(0.5)
-R.servo_board.servos[0].position = -1
-R.servo_board.servos[1].position = -1
-R.sleep(0.3)
-turn(15)
-speed(1, [0, 1])
-R.sleep(0.6)
-speed(0.2, [0, 1])
-R.sleep(0.1)
-if dist_front() < 0.12:
-	R.servo_board.servos[0].position = 1
-	R.servo_board.servos[1].position = 1
-else:
-	speed(1, [0, 1])
-	R.sleep(0.7)
-	R.servo_board.servos[0].position = 1
-	R.servo_board.servos[1].position = 1
-R.sleep(0.2)
-speed(-1, [0, 1])
-R.sleep(2.4)
-speed(1, [0, 1])
-turn(300)
-speed(1, [0, 1])
-R.sleep(3.4)
-R.servo_board.servos[0].position = -1
-R.servo_board.servos[1].position = -1
-speed(-1, [0, 1])
-R.sleep(0.3)
-R.servo_board.servos[0].position = 1
-R.servo_board.servos[1].position = 1
-R.sleep(0.2)
-R.servo_board.servos[0].position = -1
-R.servo_board.servos[1].position = -1
-R.sleep(0.5)
-turn(-270)
-speed(1, [0, 1])
-R.sleep(0.47)
+# 	else:
+# 		if m_angle >= 5 or m_angle <= -5: # if the angle of deviation is enough to care about
+# 			turn(m_angle)
+# 	if dist_front() < 0.11 or dist_front() > 1.99: # if about to hit it     
+# 		speed(0.2, [0, 1]) # stop
+# 		stopped = True
+# R.sleep(0.1)
+# R.servo_board.servos[0].position = 1
+# R.servo_board.servos[1].position = 1
+# R.sleep(0.2)
+# speed(-1, [0, 1])
+# R.sleep(0.5)
+# R.servo_board.servos[0].position = -1
+# R.servo_board.servos[1].position = -1
+# R.sleep(0.3)
+# turn(15)
+# speed(1, [0, 1])
+# R.sleep(0.6)
+# speed(0.2, [0, 1])
+# R.sleep(0.1)
+# if dist_front() < 0.12:
+# 	R.servo_board.servos[0].position = 1
+# 	R.servo_board.servos[1].position = 1
+# else:
+# 	speed(1, [0, 1])
+# 	R.sleep(0.7)
+# 	R.servo_board.servos[0].position = 1
+# 	R.servo_board.servos[1].position = 1
+# R.sleep(0.2)
+# speed(-1, [0, 1])
+# R.sleep(2.4)
+# speed(1, [0, 1])
+# turn(300)
+# speed(1, [0, 1])
+# R.sleep(3.4)
+# R.servo_board.servos[0].position = -1
+# R.servo_board.servos[1].position = -1
+# speed(-1, [0, 1])
+# R.sleep(0.3)
+# R.servo_board.servos[0].position = 1
+# R.servo_board.servos[1].position = 1
+# R.sleep(0.2)
+# R.servo_board.servos[0].position = -1
+# R.servo_board.servos[1].position = -1
+# R.sleep(0.5)
+# turn(-270)
+# speed(1, [0, 1])
+# R.sleep(0.47)
 state = 'stationary'
 count = 0
-
+grabbed = 0
 while True:
 	
 	print(state) # logging state to console
-
 	# -------- SETUP --------
 	# -------- SETTING VIEW TO FIND MARKERS NOT IN HOME ZONE ---------
 	if (state == "stationary"):		
@@ -408,10 +509,7 @@ while True:
 		o_angle = None
 		total_turned = 0
 		while o_angle == None and total_turned != 360: # while cannot yet see another marker
-			turn(30)
-			total_turned += 30
-			o_angle = marker_angle(OTHER_MARKERS)
-			R.sleep(0.1)
+			turn(beari
 
 		if total_turned == 180:
 			state = "reversing"
@@ -572,35 +670,34 @@ while True:
 	elif (state == "returning"):
 
 		speed(1, [0, 1])
-		if cubes_taken % 3 == 2:
-			R.sleep(2)
-			state = "dropping"
-			speed(0, [0, 1])
-		h_marker = marker(HOME_MARKERS)
-		if h_marker != None: # if seen a home marker
-			id = h_marker.id
-			markerlist = [[(i+1)*DIST_BETWEEN_ZONE_MARKERS,0] for i in range(7)]
-			for i in range(7):
-				markvec = [ARENA_SIDE_LENGTH,(i+1)*DIST_BETWEEN_ZONE_MARKERS]
-				markerlist.append(markvec)
-			for i in range(7):
-				markvec = [ARENA_SIDE_LENGTH-((i+1)*DIST_BETWEEN_ZONE_MARKERS),ARENA_SIDE_LENGTH]
-				markerlist.append(markvec)
-			for i in range(7):
-				markvec = [0,ARENA_SIDE_LENGTH-((i+1)*DIST_BETWEEN_ZONE_MARKERS)]
-				markerlist.append(markvec)
-			markvec = markerlist[id]
-			if markvec[1]==0 or markvec[1]==ARENA_SIDE_LENGTH:
-				criticaldistance = abs(2875 -markvec[0])-100
-			else:
-				criticaldistance = abs(2875 -markvec[1])-100
-			if h_marker.distance < criticaldistance:
-				state = "dropping" # set state to dropping
-				speed(0, [0, 1])
+		R.sleep(2)
+		speed(0, [0, 1])
+		state = 'dropping'
+		# h_marker = marker(HOME_MARKERS)
+		# if h_marker != None: # if seen a home marker
+		# 	id = h_marker.id
+		# 	markerlist = [[(i+1)*DIST_BETWEEN_ZONE_MARKERS,0] for i in range(7)]
+		# 	for i in range(7):
+		# 		markvec = [ARENA_SIDE_LENGTH,(i+1)*DIST_BETWEEN_ZONE_MARKERS]
+		# 		markerlist.append(markvec)
+		# 	for i in range(7):
+		# 		markvec = [ARENA_SIDE_LENGTH-((i+1)*DIST_BETWEEN_ZONE_MARKERS),ARENA_SIDE_LENGTH]
+		# 		markerlist.append(markvec)
+		# 	for i in range(7):
+		# 		markvec = [0,ARENA_SIDE_LENGTH-((i+1)*DIST_BETWEEN_ZONE_MARKERS)]
+		# 		markerlist.append(markvec)
+		# 	markvec = markerlist[id]
+		# 	if markvec[1]==0 or markvec[1]==ARENA_SIDE_LENGTH:
+		# 		criticaldistance = abs(2875 -markvec[0])-100
+		# 	else:
+		# 		criticaldistance = abs(2875 -markvec[1])-100
+		# 	if h_marker.distance < criticaldistance:
+		# 		state = "dropping" # set state to dropping
+		# 		speed(0, [0, 1])
 
-		else: # if cannot see a home marker
+		# else: # if cannot see a home marker
 
-			state = "finding home"
+		# 	state = "finding home"
 
 
 
