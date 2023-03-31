@@ -41,10 +41,23 @@ ARENA_SIDE_LENGTH = 5750
 
 DIST_BETWEEN_ZONE_MARKERS = 718
 
-bearing = 360 - 90*(R.zone + 1)
+bearing = 360 - 90*(R.zone + 1) # Change this by 90 since we can face any way in the competition
+
+if R.zone == 0:
+	coords = [ARENA_SIDE_LENGTH / 2 - 500, 500]
+elif R.zone == 1:
+	coords = [ARENA_SIDE_LENGTH, ARENA_SIDE_LENGTH / 2 - 500]
+elif R.zone == 2:
+	coords = [ARENA_SIDE_LENGTH / 2 + 500, ARENA_SIDE_LENGTH - 500]
+else:
+	coords = [500, ARENA_SIDE_LENGTH / 2 + 500]
 
 IDEAL_BEARING = (bearing + 90) % 360 # zone closest to us
 OTHER_POSSIBLE_BEARING = (bearing - 90) % 360 # zone second closest to us
+
+SPEED = 0 # Millimetres travelled in 1 second at max speed
+
+SLOWER_POWER = 0.7
 # ---------- DEGREE AND RADIAN FUNCTIONS ----------
 # These already exist under math library but why not make our own
 def d2r(degrees):
@@ -114,6 +127,23 @@ def speed(speed, motors, stop = False, time = None): # speed: float(-1, 1) ; mot
 			R.motor_board.motors[motor].power = 0
 
 
+#-----------ZONE FUNCTION-----------
+#returns which zone you are currently in
+def zone(coords):
+	if coords[0] < ARENA_SIDE_LENGTH / 2 and coords[1] < ARENA_SIDE_LENGTH / 2:
+		return 0
+	elif coords[0] > ARENA_SIDE_LENGTH / 2 and coords[1] < ARENA_SIDE_LENGTH / 2:
+		return 1
+	elif coords[0] > ARENA_SIDE_LENGTH / 2 and coords[1] > ARENA_SIDE_LENGTH / 2:
+		return 2
+	else:
+		return 3
+	
+
+# -------- CUBE LOCATION FUNCTION ------
+def cubecoords(cube, coords, bearing):
+	cube_bearing = (bearing + math.degrees(cube.spherical.rot_y)) % 360
+	return [coords[0] + cube.distance * math.cos(math.radians(bearing)), coords[1] + cube.distance * -1 * math.sin(math.radians(bearing))]
 
 # ---------- TURN FUNCTION ---------
 
@@ -140,6 +170,8 @@ def turn(angle):
 	R.sleep(TURN_VALUE * abs(angle)) # wait until turned angle
 	bearing = (bearing - angle) % 360
 	speed(0, [0, 1]) # stop both
+
+
 
 # Mess of navigation functions here, TriangulateComplicate is the only reliable one at the moment
 def Biangulate(each):
@@ -208,6 +240,7 @@ def Biangulate(each):
 
 cubes_taken = 0
 def Triangulate():
+	global bearing
 	cubes = R.camera.see() # make list of all visible cubes
 	
 	if len(cubes) == 0: # if no zone markers are found
@@ -350,8 +383,9 @@ def RotateVector(vec, angle):
 	return newVec
 
 
-def TriangulateComplicate(): 
-	cubes = R.camera.see()
+def TriangulateComplicate(cubes=None): 
+	if cubes == None:
+		cubes = R.camera.see()
 	new_cubes = []
 	for each in cubes:
 		if each.id in range(0, 27):
@@ -421,7 +455,8 @@ def TriangulateComplicate():
 		bearing += marker1angle
 		bearing = bearing%(2*math.pi)
 		bearing = math.degrees(bearing)
-		return bcoord
+		bcoord = ChangeCoordSystem(bcoord)
+		return bcoord, bearing
 
 
 # ---------- MAIN PROGRAM ---------
@@ -499,22 +534,26 @@ def TriangulateComplicate():
 state = 'stationary'
 count = 0
 grabbed = 0
+last_zone = (R.zone - 1) % 4
+zone_targetting = (R.zone + 1) % 4
+same_state_count = 0
+#Idea: alternate between which zones we target
 while True:
 	
 	print(state) # logging state to console
 	# -------- SETUP --------
 	# -------- SETTING VIEW TO FIND MARKERS NOT IN HOME ZONE ---------
 	if (state == "stationary"):		
-
-		o_angle = None
-		total_turned = 0
-		while o_angle == None and total_turned != 360: # while cannot yet see another marker
-			turn(beari
-
-		if total_turned == 180:
-			state = "reversing"
+		if zone_targetting == (R.zone + 1) % 4:
+			target_bearing = IDEAL_BEARING
 		else:
-			state = "looking"
+			target_bearing = OTHER_POSSIBLE_BEARING
+		new_bearing = (bearing - target_bearing) % 360
+		if new_bearing > 180:
+			turn(new_bearing - 360)
+		else:
+			turn(new_bearing)
+		state = "moving to enemy zone"
 
 
 	# -------- FINDING TOKEN MARKERS --------
@@ -524,12 +563,15 @@ while True:
 		R.sleep(0.05) # pause before looking
 		
 		cubes = R.camera.see() # make list of all visible cubes
-
-		if len(cubes) > 0: # if can see any cubes
+		pos = TriangulateComplicate(cubes)
+		if pos != None:
+			if zone(pos) == R.zone: # add more conditions like num of cubes grabbed
+				state = 'moving'
+		if len(cubes) > 0 and state == 'looking': # if can see any cubes
 			closest = None
 			markers = R.camera.see() 
 			for m in markers:
-				if m.id > 27 and m.distance > 1500 and closest == None:
+				if m.id > 27 and m.cubecoords
 					closest = m
 			if closest != None:
 				c_dist = closest.distance / 1000
@@ -586,6 +628,35 @@ while True:
 						state = "empty"
 
 
+	#----MOVING TO ENEMY ZONE---
+	elif state == 'moving to enemy zone':
+		same_state_count += 1
+		pos = TriangulateComplicate()
+		if pos != None:
+			bearing = pos[1]
+			zone = zone(pos[0])
+			if same_state_count == 10:
+				state = 'looking'
+			if zone == (R.zone + 1) % 4 or zone == (R.zone - 1) % 4:
+				state = 'looking'
+			elif zone == (R.zone + 2) % 4:
+				state = 'escape'
+		elif state == 'moving to enemy zone':
+			m_angle = marker_angle(TOKEN_MARKERS) # check angle to the closest marker
+		
+			if m_angle == None: # no cubes to bump into
+				speed(1, [0, 1])
+# Note: If motor[1] is slower, it turns clockwise, else anticlockwise			
+			else:
+				if m_angle >= 10 or m_angle <= -10: # if we are going to hit the cube (in our zone)
+					if m_angle >= 0:
+						speed(SLOWER_POWER, [1])
+						R.sleep(0.2)
+						speed(1, [0, 1])
+					else:
+						speed(SLOWER_POWER, [0])
+						R.sleep(0.2)
+						speed(1, [0, 1])
 
 	# -------- GRABBING --------
 
